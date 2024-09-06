@@ -1,6 +1,7 @@
 ﻿using FBAdsManager.Common.Response.ResponseApi;
 using FBAdsManager.Module.Auths.Requests;
 using FBAdsManager.Module.Auths.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +30,13 @@ namespace FBAdsManager.Module.Auths.Controllers
                 return ResponseNotFound(messageResponse: result.ErrorMessage);
             }
             return ResponseOk(dataResponse: result.Data);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Aaauth()
+        {
+            return ResponseUnauthorized();
         }
     }
 }

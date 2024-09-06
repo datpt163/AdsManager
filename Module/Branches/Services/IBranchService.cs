@@ -10,6 +10,6 @@ namespace FBAdsManager.Module.Branches.Services
         public Task<ResponseService> GetListAsync(int? PageIndex, int? PageSize, Guid? organization);
         public Task<ResponseService> GetDetailAsync(Guid id);
         public Task<ResponseService> Delete(Guid id);
-        //public Task<ResponseService> Update(UpdateOrganizationRequest request);
+        public Task<ResponseService> Update(UpdateBranchRequest request);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace FBAdsManager.Common.Database.Data;
 
@@ -17,7 +18,8 @@ public partial class Group
 
     public Guid? BranchId { get; set; }
 
-    public virtual Branch Branch { get; set; } = null!;
+    public virtual Branch? Branch { get; set; } = null!;
+    [JsonIgnore]
 
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

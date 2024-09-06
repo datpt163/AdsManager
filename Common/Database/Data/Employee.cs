@@ -21,5 +21,5 @@ public partial class Employee
 
     public Guid? GroupId { get; set; }
 
-    public virtual Group Group { get; set; } = null!;
+    public virtual Group? Group { get; set; } = null!;
 }

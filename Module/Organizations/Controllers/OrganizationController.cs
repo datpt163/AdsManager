@@ -47,9 +47,9 @@ namespace FBAdsManager.Module.Organizations.Controllers
             return ResponseNotFound(result.ErrorMessage);
         }
 
-        [HttpDelete("id")]
+        [HttpDelete]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete([FromQuery]Guid id)
         {
             var result = await _organizationService.Delete(id);
             if (string.IsNullOrEmpty(result.ErrorMessage))

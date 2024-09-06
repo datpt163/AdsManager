@@ -1,28 +1,29 @@
 ﻿using FBAdsManager.Common.Response.ResponseApi;
 using FBAdsManager.Module.Branches.Requests;
 using FBAdsManager.Module.Branches.Services;
-using FBAdsManager.Module.Organizations.Requests;
+using FBAdsManager.Module.Employees.Requests;
+using FBAdsManager.Module.Employees.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FBAdsManager.Module.Branches.Controllers
+namespace FBAdsManager.Module.Employees.Controllers
 {
-    [Route("api/branches")]
+    [Route("api/employee")]
     [ApiController]
-    public class BranchController : BaseController
+    public class EmployeeController : BaseController
     {
-        private readonly IBranchService _branchService;
-        public BranchController(IBranchService branchService)
+        private readonly IEmployeeService _employeeSerivce;
+        public EmployeeController(IEmployeeService employeeSerivce)
         {
-            _branchService = branchService;
+            _employeeSerivce = employeeSerivce;
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Add([FromBody] AddBranchRequest request)
+        public async Task<IActionResult> Add([FromBody] AddEmployeeRequest request)
         {
-            var result = await _branchService.AddAsync(request);
+            var result = await _employeeSerivce.AddAsync(request);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOk(result.Data);
             else
@@ -33,21 +34,12 @@ namespace FBAdsManager.Module.Branches.Controllers
             }
         }
 
-        [HttpGet("id")]
-        [Authorize]
-        public async Task<IActionResult> GetDetail(Guid id)
-        {
-            var result = await _branchService.GetDetailAsync(id);
-            if (string.IsNullOrEmpty(result.ErrorMessage))
-                return ResponseOk(result.Data);
-            return ResponseNotFound(result.ErrorMessage);
-        }
 
         [HttpDelete]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Delete([FromQuery]Guid id)
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
-            var result = await _branchService.Delete(id);
+            var result = await _employeeSerivce.Delete(id);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseNoContent();
             return ResponseNotFound(result.ErrorMessage);
@@ -55,9 +47,9 @@ namespace FBAdsManager.Module.Branches.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, Guid? organizationId)
+        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId, Guid? groupId)
         {
-            var result = await _branchService.GetListAsync(pageIndex, pageSize, organizationId);
+            var result = await _employeeSerivce.GetListAsync(pageIndex, pageSize, organizationId, branchId, groupId);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);
@@ -65,9 +57,9 @@ namespace FBAdsManager.Module.Branches.Controllers
 
         [HttpPut]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Update([FromBody] UpdateBranchRequest request)
+        public async Task<IActionResult> Update([FromBody] UpdateEmployeeRequest request)
         {
-            var result = await _branchService.Update(request);
+            var result = await _employeeSerivce.Update(request);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOk(result.Data);
             else

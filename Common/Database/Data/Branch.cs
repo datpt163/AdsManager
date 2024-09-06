@@ -19,6 +19,5 @@ public partial class Branch
     public Guid? OrganizationId { get; set; }
     [JsonIgnore]
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
-    [JsonIgnore]
-    public virtual Organization Organization { get; set; } = null!;
+    public virtual Organization? Organization { get; set; } = null!;
 }

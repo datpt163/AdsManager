@@ -31,10 +31,8 @@ public partial class DbAdsmanagerContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=42.96.41.52;initial catalog=DB_adsmanager;user=datpt;password=Admin@789", ServerVersion.Parse("8.0.28-mysql"));
-
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder

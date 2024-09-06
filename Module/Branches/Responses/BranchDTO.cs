@@ -7,7 +7,10 @@
         public string? Description { get; set; }
         public DateTime UpdateDate { get; set; }
         public DateTime? DeleteDate { get; set; }
-        public string OrganizationName { get; set; } = string.Empty;
+        public Guid? OrganizationId { get; set; }
+        public string? OrganizationName { get; set; }
+
+        public BranchDTO() { }
 
         public BranchDTO(Guid id, string name, string? description, DateTime updateDate, DateTime? deleteDate)
         {
