@@ -22,4 +22,6 @@ public partial class Group
     [JsonIgnore]
 
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+    [JsonIgnore]
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

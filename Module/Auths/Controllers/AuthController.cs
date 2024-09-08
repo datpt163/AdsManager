@@ -32,11 +32,18 @@ namespace FBAdsManager.Module.Auths.Controllers
             return ResponseOk(dataResponse: result.Data);
         }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> Aaauth()
+        [HttpGet("facebook")]
+        public async Task<IActionResult> LoginByFacebook(string accessToken)
         {
-            return ResponseUnauthorized();
+            var result = await _authService.LoginByFacebook(accessToken);
+
+            if (!string.IsNullOrEmpty(result.ErrorMessage))
+            {
+                if (result.StatusCode == 400)
+                    return ResponseBadRequest(messageResponse: result.ErrorMessage);
+                return ResponseNotFound(messageResponse: result.ErrorMessage);
+            }
+            return ResponseOk(dataResponse: result.Data);
         }
     }
 }

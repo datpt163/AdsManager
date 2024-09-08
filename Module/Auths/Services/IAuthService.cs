@@ -6,5 +6,6 @@ namespace FBAdsManager.Module.Auths.Services
     public interface IAuthService
     {
         public Task<ResponseService> LoginAsyn(LoginRequest request);
+        public Task<ResponseService> LoginByFacebook(string accessTokenFb);
     }
 }

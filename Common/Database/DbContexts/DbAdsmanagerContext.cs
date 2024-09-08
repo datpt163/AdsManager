@@ -211,14 +211,23 @@ public partial class DbAdsmanagerContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("password");
             entity.Property(e => e.RoleId).HasColumnName("roleId");
-            entity.Property(e => e.UserName)
+            entity.Property(e => e.Email)
                 .HasMaxLength(50)
-                .HasColumnName("userName");
+                .HasColumnName("email");
+            entity.Property(e => e.IsActive)
+               .HasMaxLength(50)
+               .HasColumnName("isActive");
+
+            entity.Property(e => e.AccessTokenFb)
+             .HasMaxLength(50)
+             .HasColumnName("accessTokenFb");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("user_ibfk_1");
+            entity.HasOne(d => d.Group).WithMany(p => p.Users)
+               .HasForeignKey(d => d.GroupId);
         });
 
         OnModelCreatingPartial(modelBuilder);

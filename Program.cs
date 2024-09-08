@@ -1,3 +1,4 @@
+using FBAdsManager.Common.CallApi;
 using FBAdsManager.Common.ConfigureService;
 using FBAdsManager.Common.Database.DbContexts;
 using FBAdsManager.Common.Database.Repository;
@@ -7,6 +8,7 @@ using FBAdsManager.Module.Branches.Services;
 using FBAdsManager.Module.Employees.Services;
 using FBAdsManager.Module.Groups.Services;
 using FBAdsManager.Module.Organizations.Services;
+using FBAdsManager.Module.Users.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -21,6 +23,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerService();
 builder.Services.AddScoped<DbAdsmanagerContext>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<CallApiService, CallApiService>();
 builder.Services.AddAuthSerivce(builder.Configuration);
 
 builder.Services.AddCors(options =>
@@ -40,10 +43,11 @@ builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IUserService, UserService>();
 #endregion
 
 #region Configure Database
-    var connect = builder.Configuration.GetConnectionString("Value");
+var connect = builder.Configuration.GetConnectionString("Value");
     builder.Services.AddDbContext<DbAdsmanagerContext>(options =>
     {
         options.UseMySql(connect, ServerVersion.AutoDetect(connect));
