@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace FBAdsManager.Common.Database.Data;
 
@@ -22,4 +23,6 @@ public partial class Employee
     public Guid? GroupId { get; set; }
 
     public virtual Group? Group { get; set; } = null!;
+    [JsonIgnore]
+    public virtual ICollection<AdsAccount> AdsAccounts { get; set; } = new List<AdsAccount>();
 }

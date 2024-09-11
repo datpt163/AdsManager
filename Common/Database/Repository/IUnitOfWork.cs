@@ -13,9 +13,13 @@ namespace FBAdsManager.Common.Database.Repository
         public IRepository<Employee> Employees { get; }
         public IRepository<Group> Groups { get; }
         public IRepository<Organization> Organizations { get; }
-        public IRepository<Pm> Pms { get; }
         public IRepository<Role> Roles { get; }
         public IRepository<User> Users { get; }
+        public IRepository<Insight> Insights { get; }
+        public IRepository<Ads> Adses { get; }
+        public IRepository<Adset> Adsets { get; }
+        public IRepository<Campaign> Campaigns { get; }
+        public IRepository<AdsAccount> AdsAccounts { get; }
 
         int SaveChanges();
 

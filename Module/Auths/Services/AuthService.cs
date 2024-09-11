@@ -47,7 +47,7 @@ namespace FBAdsManager.Module.Auths.Services
 
         public async Task<ResponseService> LoginByFacebook(string accessTokenFb)
         {
-            (int status, ChangeTokenResponse? data) = await _callApiService.GetDataAsync<ChangeTokenResponse>("https://graph.facebook.com/v17.0/oauth/access_token?grant_type=fb_exchange_token&client_id=1615325169044430&client_secret=cd1a6ae60591ccad399c5516ea4c4c3c&fb_exchange_token=" + accessTokenFb );
+            (int status, ChangeTokenResponse? data) = await _callApiService.GetDataAsync<ChangeTokenResponse>("https://graph.facebook.com/v17.0/oauth/access_token?grant_type=fb_exchange_token&client_id=27101359412813286&client_secret=f8662759e2b16d04279c98c928171561&fb_exchange_token=" + accessTokenFb );
 
             if(status == 200 && data != null)
             {

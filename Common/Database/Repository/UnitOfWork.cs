@@ -18,18 +18,26 @@ namespace FBAdsManager.Common.Database.Repository
         public IRepository<Employee> employees = null!;
         public IRepository<Group> groups = null!;
         public IRepository<Organization> organizations = null!;
-        public IRepository<Pm> pms = null!;
         public IRepository<Role> roles = null!;
         public IRepository<User> users = null!;
+        public IRepository<Insight> insights = null!;
+        public IRepository<Ads> adses = null!;
+        public IRepository<Adset> adsets = null!;
+        public IRepository<Campaign> campaigns = null!;
+        public IRepository<AdsAccount> adsAccounts = null!;
 
         public IRepository<Branch> Branchs => branchs ?? new Repository<Branch>(_context);
         public IRepository<Employee> Employees => employees ?? new Repository<Employee>(_context);
         public IRepository<Group> Groups => groups ?? new Repository<Group>(_context);
         public IRepository<Organization> Organizations => organizations ?? new Repository<Organization>(_context);
-        public IRepository<Pm> Pms => pms ?? new Repository<Pm>(_context);
         public IRepository<Role> Roles => roles ?? new Repository<Role>(_context);
         public IRepository<User> Users => users ?? new Repository<User>(_context);
-    
+        public IRepository<Insight> Insights => insights ?? new Repository<Insight>(_context);
+        public IRepository<Ads> Adses => adses ?? new Repository<Ads>(_context);
+        public IRepository<Adset> Adsets => adsets ?? new Repository<Adset>(_context);
+        public IRepository<Campaign> Campaigns => campaigns ?? new Repository<Campaign>(_context);
+        public IRepository<AdsAccount> AdsAccounts => adsAccounts ?? new Repository<AdsAccount>(_context);
+
 
 
         public int SaveChanges()

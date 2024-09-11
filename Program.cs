@@ -3,8 +3,13 @@ using FBAdsManager.Common.ConfigureService;
 using FBAdsManager.Common.Database.DbContexts;
 using FBAdsManager.Common.Database.Repository;
 using FBAdsManager.Common.Jwt;
+using FBAdsManager.Module.Ads.Services;
+using FBAdsManager.Module.AdsAccount.Services;
+using FBAdsManager.Module.Adsets.Services;
 using FBAdsManager.Module.Auths.Services;
 using FBAdsManager.Module.Branches.Services;
+using FBAdsManager.Module.Campaigns.Services;
+using FBAdsManager.Module.DataFacebook.Services;
 using FBAdsManager.Module.Employees.Services;
 using FBAdsManager.Module.Groups.Services;
 using FBAdsManager.Module.Organizations.Services;
@@ -26,6 +31,28 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<CallApiService, CallApiService>();
 builder.Services.AddAuthSerivce(builder.Configuration);
 
+#region AddServiceForController
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAdsAccountService, AdsAccountService>();
+builder.Services.AddScoped<IDataFacebookService, DataFacebookService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
+builder.Services.AddScoped<IAdsetService, AdsetService>();
+builder.Services.AddScoped<IAdsService, AdsService>();
+#endregion
+
+#region Configure Database
+var connect = builder.Configuration.GetConnectionString("Value");
+    builder.Services.AddDbContext<DbAdsmanagerContext>(options =>
+    {
+        options.UseMySql(connect, ServerVersion.AutoDetect(connect));
+    });
+#endregion
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -37,23 +64,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-#region AddServiceForController
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IOrganizationService, OrganizationService>();
-builder.Services.AddScoped<IBranchService, BranchService>();
-builder.Services.AddScoped<IGroupService, GroupService>();
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<IUserService, UserService>();
-#endregion
-
-#region Configure Database
-var connect = builder.Configuration.GetConnectionString("Value");
-    builder.Services.AddDbContext<DbAdsmanagerContext>(options =>
-    {
-        options.UseMySql(connect, ServerVersion.AutoDetect(connect));
-    });
-#endregion
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,9 +74,7 @@ app.UseSwaggerUI();
 //}
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
 app.UseCors("AllowAll");
+app.UseAuthorization();
+app.MapControllers();
 app.Run();
