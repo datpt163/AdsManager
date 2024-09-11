@@ -26,6 +26,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
 
         public async Task<ResponseService> AddAsync(string token, AddAccountRequest request)
         {
+
             var employee = _unitOfWork.Employees.FindOne(x => x.Id == request.EmployeeID);
             if(employee == null)
                 return new ResponseService("Không tìm thấy nhân viên này", null,404);

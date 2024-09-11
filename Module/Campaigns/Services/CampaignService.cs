@@ -20,7 +20,7 @@ namespace FBAdsManager.Module.Campaigns.Services
                     return new ResponseService("PageIndex, PageSize must >= 0", null);
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
-                var pagedOrganizationQuery = _unitOfWork.Campaigns.Find(c => c.AccountId != null && c.AccountId.Equals(adsAccountId)).Skip(skip).Take(pageSize.Value).Include(c => c.Account);
+                var pagedOrganizationQuery = _unitOfWork.Campaigns.Find(c => c.Account != null && c.AccountId != null && c.Account.IsActive == 1 && c.AccountId.Equals(adsAccountId)).Skip(skip).Take(pageSize.Value).Include(c => c.Account);
                 var totalCount = _unitOfWork.Campaigns.Find(c => c.AccountId != null && c.AccountId.Equals(adsAccountId)).Count();
                 return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }

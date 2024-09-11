@@ -39,7 +39,7 @@ public partial class AdsAccount
     public double? MinDailyBudget { get; set; }
 
     public int? IsPersonal { get; set; }
-
+    public int? IsActive { get; set; }
     public DateTime? UpdateDataTime { get; set; }
     [JsonIgnore]
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();

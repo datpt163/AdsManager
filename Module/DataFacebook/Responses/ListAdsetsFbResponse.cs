@@ -1,5 +1,6 @@
 ﻿namespace FBAdsManager.Module.DataFacebook.Responses
 {
+
     public class Root
     {
         public List<Data> data { get; set; }
