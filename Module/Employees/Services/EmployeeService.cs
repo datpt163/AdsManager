@@ -52,16 +52,14 @@ namespace FBAdsManager.Module.Employees.Services
 
         public async Task<ResponseService> Delete(Guid id)
         {
-            var employee = await _unitOfWork.Employees.Find(c => c.Id == id).FirstOrDefaultAsync();
+            var employee = await _unitOfWork.Employees.Find(c => c.Id == id).Include(c => c.AdsAccounts).FirstOrDefaultAsync();
             if (employee == null)
                 return new ResponseService("Not found", null);
             employee.DeleteDate = DateTime.Now;
-
-            //foreach (var b in group.Employees)
-            //{
-            //    b.GroupId = null;
-            //}
-
+            
+            foreach (var adsAccount in employee.AdsAccounts)
+                adsAccount.EmployeeId = null;
+            _unitOfWork.AdsAccounts.UpdateRange(employee.AdsAccounts);
             _unitOfWork.Employees.Update(employee);
             await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", null);
@@ -69,7 +67,7 @@ namespace FBAdsManager.Module.Employees.Services
 
         public async Task<ResponseService> GetListAsync(int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId, Guid? groupId)
         {
-            var employee = await _unitOfWork.Employees.Find(x => x.DeleteDate == null).Include(x => x.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).ToListAsync();
+            var employee = await _unitOfWork.Employees.Find(x => x.DeleteDate == null).Include(x => x.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).OrderByDescending(c => c.UpdateDate).ToListAsync();
             var response = new List<Employee>();
             bool flag = false;
             if (pageIndex != null && pageSize != null)
@@ -105,17 +103,17 @@ namespace FBAdsManager.Module.Employees.Services
 
             if (organizationId != null)
             {
-                response = employee.Where(x => x.Group != null && x.Group.Branch != null && x.Group.Branch.OrganizationId != null && x.Group.Branch.OrganizationId == organizationId).ToList();
+                response = employee.Where(x => x.Group != null && x.Group.Branch != null && x.Group.Branch.OrganizationId != null && x.Group.Branch.OrganizationId == organizationId).OrderByDescending(c => c.UpdateDate).ToList();
                 flag = true;
             }
             if (branchId != null)
             {
-                response = employee.Where(x => x.Group != null && x.Group.BranchId != null && x.Group.BranchId == branchId).ToList();
+                response = employee.Where(x => x.Group != null && x.Group.BranchId != null && x.Group.BranchId == branchId).OrderByDescending(c => c.UpdateDate).ToList();
                 flag = true;
             }
             if (groupId != null)
             {
-                response = employee.Where(x => x.GroupId != null && x.GroupId == groupId).ToList();
+                response = employee.Where(x => x.GroupId != null && x.GroupId == groupId).OrderByDescending(c => c.UpdateDate).ToList();
                 flag = true;
             }
 

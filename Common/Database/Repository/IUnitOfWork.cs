@@ -20,6 +20,7 @@ namespace FBAdsManager.Common.Database.Repository
         public IRepository<Adset> Adsets { get; }
         public IRepository<Campaign> Campaigns { get; }
         public IRepository<AdsAccount> AdsAccounts { get; }
+        public IRepository<Pm> Pms { get; }
 
         int SaveChanges();
 

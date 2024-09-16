@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using FBAdsManager.Common.Database.Data;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
-namespace FBAdsManager.Common.Database.DbContexts;
+namespace FBAdsManager.Models;
 
 public partial class DbAdsmanagerContext : DbContext
 {
@@ -17,7 +16,7 @@ public partial class DbAdsmanagerContext : DbContext
     {
     }
 
-    public virtual DbSet<Ads> Ads { get; set; }
+    public virtual DbSet<Ad> Ads { get; set; }
 
     public virtual DbSet<AdsAccount> AdsAccounts { get; set; }
 
@@ -35,40 +34,23 @@ public partial class DbAdsmanagerContext : DbContext
 
     public virtual DbSet<Organization> Organizations { get; set; }
 
+    public virtual DbSet<Pm> Pms { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-    public virtual DbSet<Pm> Pms { get; set; }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
 
-    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=42.96.41.52;initial catalog=DB_adsmanager;user=datpt;password=Admin@789", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.28-mysql"));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .UseCollation("utf8_unicode_ci")
             .HasCharSet("utf8");
 
-        modelBuilder.Entity<Pm>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("pm");
-
-            entity.HasIndex(e => e.UserId, "userId");
-
-            entity.Property(e => e.Id)
-                .HasMaxLength(100)
-                .IsFixedLength()
-                .HasColumnName("id");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Pms)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("pm_ibfk_1");
-        });
-
-        modelBuilder.Entity<Ads>(entity =>
+        modelBuilder.Entity<Ad>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
@@ -81,10 +63,10 @@ public partial class DbAdsmanagerContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("id");
             entity.Property(e => e.ActionType)
-                .HasMaxLength(250)
+                .HasColumnType("mediumtext")
                 .HasColumnName("action_type");
             entity.Property(e => e.Adcreatives)
-                .HasMaxLength(250)
+                .HasColumnType("mediumtext")
                 .HasColumnName("adcreatives");
             entity.Property(e => e.AdsetId)
                 .HasMaxLength(60)
@@ -103,8 +85,7 @@ public partial class DbAdsmanagerContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("effective_status");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsFixedLength()
+                .HasColumnType("mediumtext")
                 .HasColumnName("name");
             entity.Property(e => e.StartTime)
                 .HasMaxLength(50)
@@ -115,7 +96,7 @@ public partial class DbAdsmanagerContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("status");
             entity.Property(e => e.TrackingSpecs)
-                .HasMaxLength(250)
+                .HasColumnType("mediumtext")
                 .HasColumnName("tracking_specs");
             entity.Property(e => e.UpdateDataTime)
                 .HasColumnType("datetime")
@@ -165,6 +146,7 @@ public partial class DbAdsmanagerContext : DbContext
                 .HasMaxLength(50)
                 .IsFixedLength()
                 .HasColumnName("inforCardBanking");
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsPersonal).HasColumnName("is_personal");
             entity.Property(e => e.MinCampaignGroupSpendCap)
                 .HasMaxLength(50)
@@ -193,8 +175,7 @@ public partial class DbAdsmanagerContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.AdsAccounts)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("adsAccounts_ibfk_1")
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasConstraintName("adsAccounts_ibfk_1");
 
             entity.HasMany(d => d.Pms).WithMany(p => p.AdsAccounts)
                 .UsingEntity<Dictionary<string, object>>(
@@ -267,8 +248,7 @@ public partial class DbAdsmanagerContext : DbContext
                 .HasColumnName("lifetime_budget");
             entity.Property(e => e.LifetimeImps).HasColumnName("lifetime_imps");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsFixedLength()
+                .HasColumnType("mediumtext")
                 .HasColumnName("name");
             entity.Property(e => e.PromoteObjectPageId)
                 .HasMaxLength(50)
@@ -283,8 +263,7 @@ public partial class DbAdsmanagerContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("status");
             entity.Property(e => e.Targeting)
-                .HasMaxLength(50)
-                .IsFixedLength()
+                .HasColumnType("mediumtext")
                 .HasColumnName("targeting");
             entity.Property(e => e.UpdateDataTime)
                 .HasColumnType("datetime")
@@ -375,8 +354,7 @@ public partial class DbAdsmanagerContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("lifetime_budget");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsFixedLength()
+                .HasColumnType("mediumtext")
                 .HasColumnName("name");
             entity.Property(e => e.Objective)
                 .HasMaxLength(50)
@@ -483,7 +461,7 @@ public partial class DbAdsmanagerContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Actions)
-                .HasMaxLength(250)
+                .HasColumnType("mediumtext")
                 .HasColumnName("actions");
             entity.Property(e => e.AdsId)
                 .HasMaxLength(60)
@@ -556,6 +534,25 @@ public partial class DbAdsmanagerContext : DbContext
             entity.Property(e => e.UpdateDate)
                 .HasColumnType("datetime")
                 .HasColumnName("updateDate");
+        });
+
+        modelBuilder.Entity<Pm>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("pm");
+
+            entity.HasIndex(e => e.UserId, "userId");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(100)
+                .IsFixedLength()
+                .HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("userId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Pms)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("pm_ibfk_1");
         });
 
         modelBuilder.Entity<Role>(entity =>

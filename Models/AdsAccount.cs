@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
-namespace FBAdsManager.Common.Database.Data;
+namespace FBAdsManager.Models;
 
 public partial class AdsAccount
 {
@@ -39,11 +38,14 @@ public partial class AdsAccount
     public double? MinDailyBudget { get; set; }
 
     public int? IsPersonal { get; set; }
-    public int? IsActive { get; set; }
+
     public DateTime? UpdateDataTime { get; set; }
-    [JsonIgnore]
+
+    public int? IsActive { get; set; }
+
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 
     public virtual Employee? Employee { get; set; }
+
     public virtual ICollection<Pm> Pms { get; set; } = new List<Pm>();
 }

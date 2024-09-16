@@ -25,6 +25,7 @@ namespace FBAdsManager.Common.Database.Repository
         public IRepository<Adset> adsets = null!;
         public IRepository<Campaign> campaigns = null!;
         public IRepository<AdsAccount> adsAccounts = null!;
+        public IRepository<Pm> pms = null!;
 
         public IRepository<Branch> Branchs => branchs ?? new Repository<Branch>(_context);
         public IRepository<Employee> Employees => employees ?? new Repository<Employee>(_context);
@@ -37,6 +38,7 @@ namespace FBAdsManager.Common.Database.Repository
         public IRepository<Adset> Adsets => adsets ?? new Repository<Adset>(_context);
         public IRepository<Campaign> Campaigns => campaigns ?? new Repository<Campaign>(_context);
         public IRepository<AdsAccount> AdsAccounts => adsAccounts ?? new Repository<AdsAccount>(_context);
+        public IRepository<Pm> Pms => pms ?? new Repository<Pm>(_context);
 
 
 

@@ -62,7 +62,7 @@ namespace FBAdsManager.Module.Groups.Services
 
         public async Task<ResponseService> GetListAsync(int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId)
         {
-            var groups = await _unitOfWork.Groups.Find(x => x.DeleteDate == null).Include(x => x.Branch).ThenInclude(c => c.Organization).ToListAsync();
+            var groups = await _unitOfWork.Groups.Find(x => x.DeleteDate == null).Include(x => x.Branch).ThenInclude(c => c.Organization).OrderByDescending(c => c.UpdateDate).ToListAsync();
             bool flag = false;
             var response = new List<Group>();
             if (pageIndex != null && pageSize != null)

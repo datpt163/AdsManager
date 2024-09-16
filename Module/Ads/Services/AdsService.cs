@@ -40,13 +40,31 @@ namespace FBAdsManager.Module.Ads.Services
                     StartTime = x.StartTime,
                     UpdatedTime = x.UpdatedTime,
                     UpdateDataTime = x.UpdateDataTime,
-                    Insighn = insign
+                    Insighn = x.Insights.FirstOrDefault(),
 
                 }).ToListAsync();
                 var totalCount = _unitOfWork.Adses.Find(c => c.AdsetId != null && c.AdsetId.Equals(adsetId)).Count();
                 return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
-            return new ResponseService("", await _unitOfWork.Adses.GetQuery().ToListAsync());
+            var response = await _unitOfWork.Adses.Find(c => c.AdsetId != null && c.AdsetId.Equals(adsetId)).Select(x => new
+            {
+                Id = x.Id,
+                AdsetId = x.AdsetId,
+                Name = x.Name,
+                ActionType = x.ActionType,
+                TrackingSpecs = x.TrackingSpecs,
+                Adcreatives = x.Adcreatives,
+                EffectiveStatus = x.EffectiveStatus,
+                Status = x.Status,
+                ConfiguredStatus = x.ConfiguredStatus,
+                CreatedTime = x.CreatedTime,
+                StartTime = x.StartTime,
+                UpdatedTime = x.UpdatedTime,
+                UpdateDataTime = x.UpdateDataTime,
+                Insighn = x.Insights.FirstOrDefault(),
+
+            }).ToListAsync();
+            return new ResponseService("", response);
         }
     }
 }

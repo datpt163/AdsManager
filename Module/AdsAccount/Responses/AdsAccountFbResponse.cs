@@ -25,6 +25,13 @@ namespace FBAdsManager.Module.AdsAccount.Responses
         public string min_campaign_group_spend_cap { get; set; } = string.Empty;
         public double min_daily_budget { get; set; }
         public int is_personal { get; set; }
+        public Business? business { get; set; } 
+    }
+
+    public class Business
+    {
+        public string id { get; set; } = string.Empty;
+        public string name { get; set; } = string.Empty;
     }
 
     public class FundingSourceDetails

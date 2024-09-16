@@ -21,7 +21,6 @@ public partial class User
     public Guid? GroupId { get; set; }
     [JsonIgnore]
     public virtual ICollection<Pm> Pms { get; set; } = new List<Pm>();
-
     public virtual Role Role { get; set; } = null!;
     public virtual Group? Group { get; set; }
 }

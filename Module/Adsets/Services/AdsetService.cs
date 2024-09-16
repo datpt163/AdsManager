@@ -26,7 +26,7 @@ namespace FBAdsManager.Module.Adsets.Services
                 return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
 
-            return new ResponseService("", await _unitOfWork.Adsets.GetQuery().ToListAsync());
+            return new ResponseService("", await _unitOfWork.Adsets.Find(c => c.CampaignId != null && c.CampaignId.Equals(campaignId)).ToListAsync());
         }
     }
 }

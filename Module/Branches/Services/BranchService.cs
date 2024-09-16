@@ -79,21 +79,21 @@ namespace FBAdsManager.Module.Branches.Services
 
                 if (organizationId != null)
                 {
-                    var pagedOrganizationQuery = _unitOfWork.Branchs.Find(x => (x.DeleteDate == null && x.Organization != null && x.Organization.Id == organizationId)).Skip(skip).Take(pageSize.Value).Include(x => x.Organization);
+                    var pagedOrganizationQuery = _unitOfWork.Branchs.Find(x => (x.DeleteDate == null && x.Organization != null && x.Organization.Id == organizationId)).OrderByDescending(c => c.UpdateDate).Skip(skip).Take(pageSize.Value).Include(x => x.Organization);
                     var totalCount = _unitOfWork.Branchs.Find(x => (x.DeleteDate == null && x.Organization != null && x.Organization.Id == organizationId)).Count();
                     return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
                 }
                 else
                 {
-                    var pagedOrganizationQuery = _unitOfWork.Branchs.Find(x => x.DeleteDate == null).Skip(skip).Take(pageSize.Value).Include(x => x.Organization);
+                    var pagedOrganizationQuery = _unitOfWork.Branchs.Find(x => x.DeleteDate == null).OrderByDescending(c => c.UpdateDate).Skip(skip).Take(pageSize.Value).Include(x => x.Organization);
                     var totalCount = _unitOfWork.Branchs.Find(x => x.DeleteDate == null).Count();
                     return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
                 }
             }
 
             if (organizationId == null)
-                return new ResponseService("", await _unitOfWork.Branchs.Find(x => x.DeleteDate == null).Include(x => x.Organization).ToListAsync());
-            return new ResponseService("", await _unitOfWork.Branchs.Find(x => (x.DeleteDate == null && x.Organization != null && x.Organization.Id == organizationId)).Include(x => x.Organization).ToListAsync());
+                return new ResponseService("", await _unitOfWork.Branchs.Find(x => x.DeleteDate == null).Include(x => x.Organization).OrderByDescending(c => c.UpdateDate).ToListAsync());
+            return new ResponseService("", await _unitOfWork.Branchs.Find(x => (x.DeleteDate == null && x.Organization != null && x.Organization.Id == organizationId)).OrderByDescending(c => c.UpdateDate).Include(x => x.Organization).ToListAsync());
         }
 
         public async Task<ResponseService> Update(UpdateBranchRequest request)

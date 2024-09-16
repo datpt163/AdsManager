@@ -40,12 +40,12 @@ namespace FBAdsManager.Module.Organizations.Services
                     return new ResponseService("PageIndex, PageSize must >= 0", null);
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
-                var pagedOrganizationQuery = _unitOfWork.Organizations.Find(x => x.DeleteDate == null).Skip(skip).Take(pageSize.Value);
+                var pagedOrganizationQuery = _unitOfWork.Organizations.Find(x => x.DeleteDate == null).OrderByDescending(c => c.UpdateDate).Skip(skip).Take(pageSize.Value);
                 var totalCount = _unitOfWork.Organizations.Find(x => x.DeleteDate == null).Count();
                 return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
 
-            return new ResponseService("", await _unitOfWork.Organizations.Find(x => x.DeleteDate == null).ToListAsync());
+            return new ResponseService("", await _unitOfWork.Organizations.Find(x => x.DeleteDate == null).OrderByDescending(c => c.UpdateDate).ToListAsync());
         }
 
         public async Task<ResponseService> GetDetailAsync(Guid id)

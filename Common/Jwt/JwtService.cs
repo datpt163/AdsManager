@@ -70,7 +70,7 @@ namespace FBAdsManager.Common.Jwt
                     throw new SecurityTokenException("Invalid token");
                 }
                 var userId = Guid.Parse(userIdClaim.Value);
-                var account = await _unitOfWork.Users.Find(s => s.Id == userId).Include(c => c.Group).ThenInclude(c => c.Employees).ThenInclude(c => c.AdsAccounts).FirstOrDefaultAsync();
+                var account = await _unitOfWork.Users.Find(s => s.Id == userId).Include(c => c.Pms).Include(c => c.Group).ThenInclude(c => c.Employees).ThenInclude(c => c.AdsAccounts).FirstOrDefaultAsync();
                 if (account != null) 
                     return account;
                 throw new SecurityTokenException();

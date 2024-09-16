@@ -30,7 +30,7 @@ namespace FBAdsManager.Module.Auths.Services
             if (string.IsNullOrEmpty(request.Password))
                 return new ResponseService("User name rõng", null, 400);
 
-            var user = await _unitOfWork.Users.Find(x => x.Email.Equals(request.UserName)).Include(c => c.Role).FirstOrDefaultAsync();
+            var user = await _unitOfWork.Users.Find(x => x.Email.Equals(request.UserName) && x.Role.Name != "BM").Include(c => c.Role).FirstOrDefaultAsync();
             if(user == null)
                 return new ResponseService("Tài khoản không tồn tại", null, 404);
 
@@ -42,7 +42,7 @@ namespace FBAdsManager.Module.Auths.Services
 
             var accessToken = _jwtService.GenerateJwtToken(user, DateTime.Now.AddMonths(1));
 
-            return new ResponseService("", new { AccessToken = accessToken });
+            return new ResponseService("", new { AccessToken = accessToken, Role = user.Role.Name });
         }
 
         public async Task<ResponseService> LoginByFacebook(string accessTokenFb)
@@ -55,7 +55,7 @@ namespace FBAdsManager.Module.Auths.Services
 
                 if (status2 == 200 && data2 != null)
                 {
-                    var user = _unitOfWork.Users.Find(x => x.Email.Equals(data2.email) && x.IsActive == true && x.Role.Name == "PM" ).Include(c => c.Role).FirstOrDefault();
+                    var user = _unitOfWork.Users.Find(x => x.Email.Equals(data2.email) && x.IsActive == true && x.Role.Name == "BM" ).Include(c => c.Role).FirstOrDefault();
 
                     if (user != null)
                     {
@@ -63,7 +63,7 @@ namespace FBAdsManager.Module.Auths.Services
                         user.AccessTokenFb = data.access_token;
                         _unitOfWork.Users.Update(user);
                         await _unitOfWork.SaveChangesAsync();
-                        return new ResponseService("", new { AccessToken = accessToken });
+                        return new ResponseService("", new { AccessToken = accessToken, Role = user.Role.Name });
                     }
 
                     return new ResponseService("This account not found or not have role PM", null, 404);

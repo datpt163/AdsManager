@@ -16,7 +16,7 @@ namespace FBAdsManager.Module.DataFacebook.Controllers
             _dataFacebookService = dataFacebookService;
         }
         [HttpGet]
-        [Authorize(Roles = "PM")]
+        [Authorize(Roles = "BM")]
         public async Task<IActionResult> GetData()
         {
             string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");

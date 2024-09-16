@@ -33,6 +33,8 @@ namespace FBAdsManager.Common.CallApi
                         return (401, null);
                     else if(data != null &&  data.error.message.Contains("Missing permissions"))
                         return (405, null);
+                    else if (data != null && data.error.message.Contains("supported"))
+                        return (409, null);
                     return (400, null);
                 }
                 catch 

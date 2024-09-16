@@ -19,7 +19,7 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PM")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Add([FromBody] AddAccountRequest request)
         {
             string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -43,6 +43,36 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
             var result = await _adsAccountService.GetListAsync(pageIndex, pageSize);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
+            return ResponseBadRequest(result.ErrorMessage);
+        }
+
+        [HttpGet("isActive")]
+        [Authorize]
+        public async Task<IActionResult> GetList2([FromQuery] int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId, Guid? groupId, Guid? employeeId)
+        {
+            var result = await _adsAccountService.GetListAsyncActived(pageIndex, pageSize, organizationId, branchId, groupId, employeeId);
+            if (string.IsNullOrEmpty(result.ErrorMessage))
+                return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
+            return ResponseBadRequest(result.ErrorMessage);
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> GetList2(UpdateAdsAccountRequest request)
+        {
+            var result = await _adsAccountService.UpdateAsync(request);
+            if (string.IsNullOrEmpty(result.ErrorMessage))
+                return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
+            return ResponseBadRequest(result.ErrorMessage);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var result = await _adsAccountService.DeleteAsync(id);
+            if (string.IsNullOrEmpty(result.ErrorMessage))
+                return ResponseOk();
             return ResponseBadRequest(result.ErrorMessage);
         }
     }
