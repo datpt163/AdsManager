@@ -93,12 +93,12 @@ namespace FBAdsManager.Module.AdsAccount.Services
                     return new ResponseService("PageIndex, PageSize must >= 0", null);
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
-                var pagedOrganizationQuery = _unitOfWork.AdsAccounts.GetQuery().Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization);
+                var pagedOrganizationQuery = _unitOfWork.AdsAccounts.GetQuery().Include(c => c.Pms).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization);
                 var totalCount = _unitOfWork.AdsAccounts.GetQuery().Count();
                 return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
 
-            return new ResponseService("", await _unitOfWork.AdsAccounts.GetQuery().Include(c => c.Employee).ThenInclude(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).ToListAsync());
+            return new ResponseService("", await _unitOfWork.AdsAccounts.GetQuery().Include(c => c.Pms).Include(c => c.Employee).ThenInclude(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).ToListAsync());
         }
 
         public async Task<ResponseService> GetListAsyncActived(int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId, Guid? groupId, Guid? employeeId)
@@ -111,7 +111,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
                 if (employeeId != null)
                 {
                     int skip = (pageIndex.Value - 1) * pageSize.Value;
-                    var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.EmployeeId == employeeId).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
+                    var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.EmployeeId == employeeId).Include(c => c.Pms).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
                     var totalCount = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.EmployeeId == employeeId).Count();
                     return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
                 }
@@ -119,7 +119,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
                 if (groupId != null)
                 {
                     int skip = (pageIndex.Value - 1) * pageSize.Value;
-                    var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 &&  x.Employee != null && x.Employee.GroupId == groupId).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
+                    var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 &&  x.Employee != null && x.Employee.GroupId == groupId).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group).Include(c => c.Pms);
                     var totalCount = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 &&  x.Employee != null && x.Employee.GroupId == groupId).Count();
                     return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
                 }
@@ -127,7 +127,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
                 if (branchId != null)
                 {
                     int skip = (pageIndex.Value - 1) * pageSize.Value;
-                     var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.Employee != null && x.Employee.Group != null && x.Employee.Group.BranchId == branchId).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
+                     var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.Employee != null && x.Employee.Group != null && x.Employee.Group.BranchId == branchId).Skip(skip).Take(pageSize.Value).Include(c => c.Pms).Include(c => c.Employee).ThenInclude(c => c.Group);
                     var totalCount = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 &&  x.Employee != null && x.Employee.Group != null && x.Employee.Group.BranchId == branchId).Count();
                     return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
                 }
@@ -135,23 +135,23 @@ namespace FBAdsManager.Module.AdsAccount.Services
                 if (organizationId != null)
                 {
                     int skip = (pageIndex.Value - 1) * pageSize.Value;
-                    var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.Employee != null && x.Employee.Group != null && x.Employee.Group.Branch != null && x.Employee.Group.Branch.OrganizationId == organizationId).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
+                    var pagedOrganizationQuery = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.Employee != null && x.Employee.Group != null && x.Employee.Group.Branch != null && x.Employee.Group.Branch.OrganizationId == organizationId).Include(c => c.Pms).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
                     var totalCount = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1 && x.Employee != null && x.Employee.Group != null && x.Employee.Group.Branch != null && x.Employee.Group.Branch.OrganizationId == organizationId).Count();
                     return new ResponseService("", pagedOrganizationQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
                 }
 
                 int skip2 = (pageIndex.Value - 1) * pageSize.Value;
-                var pagedOrganizationQuery2 = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1).Skip(skip2).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
+                var pagedOrganizationQuery2 = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1).Include(c => c.Pms).Skip(skip2).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group);
                 var totalCount2 = _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1).Count();
                 return new ResponseService("", pagedOrganizationQuery2, new PagingResponse(totalCount2, pageIndex.Value, pageSize.Value));
             }
 
-            return new ResponseService("", await _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1).Include(c => c.Employee).ThenInclude(c => c.Group).ToListAsync());
+            return new ResponseService("", await _unitOfWork.AdsAccounts.Find(x => x.IsActive == 1).Include(c => c.Employee).ThenInclude(c => c.Group).Include(c => c.Pms).ToListAsync());
         }
 
         public async Task<ResponseService> UpdateAsync(UpdateAdsAccountRequest request)
         {
-            var adsAccount = _unitOfWork.AdsAccounts.FindOne(x => x.AccountId == request.AccountID);
+            var adsAccount = _unitOfWork.AdsAccounts.Find(x => x.AccountId == request.AccountID).Include(c => c.Pms).FirstOrDefault();
 
             if (adsAccount == null)
                 return new ResponseService("Không tìm thấy tài khoản quảng cáo này", null, 400);
@@ -160,6 +160,20 @@ namespace FBAdsManager.Module.AdsAccount.Services
             if (employee == null)
                 return new ResponseService("Không tìm thấy nhân viên này", null, 404);
 
+            var listPm = new List<Pm>();
+            foreach (var l in request.PmsId)
+            {
+                var pm = _unitOfWork.Pms.Find(x => x.Id == l).Include(c => c.User).FirstOrDefault();
+                if (pm == null)
+                    return new ResponseService("Pm Id not found", null, 404);
+                if (pm.User != null && pm.User.GroupId != null && pm.User.GroupId == employee.GroupId)
+                    listPm.Add(pm);
+                else
+                {
+                    return new ResponseService("Tài khoản BM và employee không thuộc cùng một đội nhóm", null, 404);
+                }
+            }
+            adsAccount.Pms = listPm;
             adsAccount.EmployeeId = request.EmployeeID;
             _unitOfWork.AdsAccounts.Update(adsAccount);
             await _unitOfWork.SaveChangesAsync();

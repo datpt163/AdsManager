@@ -4,6 +4,6 @@ namespace FBAdsManager.Module.Campaigns.Services
 {
     public interface ICampaignService
     {
-        public Task<ResponseService> GetListAsync(int? PageIndex, int? PageSize, string? adsAccountId);
+        public Task<ResponseService> GetListAsync(int? PageIndex, int? PageSize, string? adsAccountId, DateTime start, DateTime end);
     }
 }

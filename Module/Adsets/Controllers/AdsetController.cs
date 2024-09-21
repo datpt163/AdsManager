@@ -18,9 +18,9 @@ namespace FBAdsManager.Module.Adsets.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, string? adsAccountId)
+        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, string? adsAccountId, DateTime start, DateTime end)
         {
-            var result = await _adsetService.GetListAsync(pageIndex, pageSize, adsAccountId);
+            var result = await _adsetService.GetListAsync(pageIndex, pageSize, adsAccountId, start, end);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);

@@ -7,8 +7,10 @@ using FBAdsManager.Module.Ads.Services;
 using FBAdsManager.Module.AdsAccount.Services;
 using FBAdsManager.Module.Adsets.Services;
 using FBAdsManager.Module.Auths.Services;
+using FBAdsManager.Module.BM.Services;
 using FBAdsManager.Module.Branches.Services;
 using FBAdsManager.Module.Campaigns.Services;
+using FBAdsManager.Module.Dashboard.Services;
 using FBAdsManager.Module.DataFacebook.Services;
 using FBAdsManager.Module.Employees.Services;
 using FBAdsManager.Module.Groups.Services;
@@ -43,6 +45,8 @@ builder.Services.AddScoped<IDataFacebookService, DataFacebookService>();
 builder.Services.AddScoped<ICampaignService, CampaignService>();
 builder.Services.AddScoped<IAdsetService, AdsetService>();
 builder.Services.AddScoped<IAdsService, AdsService>();
+builder.Services.AddScoped<IBmService, BmService>();
+builder.Services.AddScoped<IDashBoardService, DashboardService>();
 #endregion
 
 #region Configure Database

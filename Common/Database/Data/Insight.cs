@@ -30,7 +30,7 @@ public partial class Insight
     public DateTime? DateAt { get; set; }
 
     public DateTime? UpdateDataTime { get; set; }
-
+    public string CostPerAction { get; set; } = string.Empty;
     public string? AdsId { get; set; }
 
     public virtual Ads? Ads { get; set; }

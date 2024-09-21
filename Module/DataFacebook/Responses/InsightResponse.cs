@@ -20,7 +20,7 @@
     public class Action
     {
         public string action_type { get; set; }
-        public string value { get; set; }
+        public string value { get; set; } = string.Empty;
     }
 
     public class CostPerActionType

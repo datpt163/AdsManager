@@ -38,7 +38,6 @@ public partial class Adset
 
     public DateTime? UpdateDataTime { get; set; }
     [JsonIgnore]
-
     public virtual ICollection<Ads> Ads { get; set; } = new List<Ads>();
 
     public virtual Campaign? Campaign { get; set; }

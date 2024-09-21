@@ -116,12 +116,6 @@ namespace FBAdsManager.Module.Users.Services
             if (group == null)
                 return new ResponseService("Không tìm thấy đội nhóm", null, 404);
 
-            foreach (var l in group.Users)
-            {
-                if (l.Role.Name.Equals("BM"))
-                    return new ResponseService("Đội nhóm này đã có BM", null, 400);
-            }
-
             var role = _unitOfWork.Roles.FindOne(x => x.Name == "BM");
 
             var user = new User() { GroupId = request.GroupId, Email = request.email, RoleId = role.Id, IsActive = true };
@@ -145,12 +139,14 @@ namespace FBAdsManager.Module.Users.Services
 
         public async Task<ResponseService> Delete(Guid id)
         {
-            var user = await _unitOfWork.Users.Find(c => c.Id == id).Include(c => c.Pms).FirstOrDefaultAsync();
+            var user = await _unitOfWork.Users.Find(c => c.Id == id).Include(c => c.Pms).ThenInclude(c => c.AdsAccounts).FirstOrDefaultAsync();
             if (user == null)
                 return new ResponseService("Not found", null);
 
             foreach (var b in user.Pms)
             {
+                b.AdsAccounts = new List<FBAdsManager.Common.Database.Data.AdsAccount>();
+                _unitOfWork.Pms.Update(b);
                 _unitOfWork.Pms.Remove(b);
             }
 
@@ -172,12 +168,6 @@ namespace FBAdsManager.Module.Users.Services
             var group = _unitOfWork.Groups.Find(x => x.Id == request.GroupId).Include(c => c.Users).ThenInclude(c => c.Role).FirstOrDefault();
             if (group == null)
                 return new ResponseService("Không tìm thấy đội nhóm", null, 404);
-
-            foreach (var l in group.Users)
-            {
-                if (l.Role.Name.Equals("BM") && l.Id != request.Id)
-                    return new ResponseService("Đội nhóm này đã có BM", null, 400);
-            }
 
             var role = _unitOfWork.Roles.FindOne(x => x.Name == "BM");
 

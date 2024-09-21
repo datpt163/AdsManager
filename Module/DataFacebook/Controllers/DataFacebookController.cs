@@ -17,10 +17,10 @@ namespace FBAdsManager.Module.DataFacebook.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "BM")]
-        public async Task<IActionResult> GetData()
+        public async Task<IActionResult> GetData(DateTime? since, DateTime? until)
         {
             string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var result = await _dataFacebookService.CrawlData(token);
+            var result = await _dataFacebookService.CrawlData(token, since, until);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOk(result.Data);
             else
