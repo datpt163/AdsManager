@@ -28,7 +28,7 @@ namespace FBAdsManager.Module.Ads.Services
                     
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
                 var adses = new List<AdsResponse>();
-                var pagedOrganizationQuery = await _unitOfWork.Adses.Find(c => c.AdsetId != null && c.AdsetId.Equals(adsetId)).Include(c => c.Insights).Skip(skip).Take(pageSize.Value).ToListAsync();
+                var pagedOrganizationQuery = await _unitOfWork.Adses.Find(c => c.AdsetId != null && c.AdsetId.Equals(adsetId)).OrderBy(c => c.CreatedTime).Include(c => c.Insights).Skip(skip).Take(pageSize.Value).ToListAsync();
                 foreach(var l in pagedOrganizationQuery)
                 {
                     var ads = new AdsResponse();

@@ -24,8 +24,9 @@ namespace FBAdsManager.Module.Campaigns.Services
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
                 var campaigns = new List<CampainResponse>();
-                var pagedOrganizationQuery = _unitOfWork.Campaigns.Find(c => c.Account != null && c.AccountId != null && c.AccountId.Equals(adsAccountId)).Skip(skip).Take(pageSize.Value).Include(c => c.Adsets).ThenInclude(c => c.Ads).ThenInclude(c => c.Insights).Include(c => c.Account).ToList();
-
+                var pagedOrganizationQuery = _unitOfWork.Campaigns.Find(c => c.Account != null && c.AccountId != null && c.AccountId.Equals(adsAccountId)).Include(c => c.Adsets).ThenInclude(c => c.Ads).ThenInclude(c => c.Insights).Include(c => c.Account).ToList();
+                pagedOrganizationQuery.Reverse();
+                pagedOrganizationQuery = pagedOrganizationQuery.Skip(skip).Take(pageSize.Value).ToList();
 
                 foreach (var campaign in pagedOrganizationQuery)
                 {
