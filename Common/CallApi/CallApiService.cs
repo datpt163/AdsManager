@@ -29,7 +29,7 @@ namespace FBAdsManager.Common.CallApi
                 try
                 {
                     var data = JsonSerializer.Deserialize<ErrorResponse>(responseData);
-                    if(data != null &&  data.error.message.Contains("expired"))
+                    if(data != null &&  (data.error.message.Contains("expired") || data.error.message.Contains("logged out")))
                         return (401, null);
                     else if(data != null &&  data.error.message.Contains("Missing permissions"))
                         return (405, null);

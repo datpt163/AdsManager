@@ -15,6 +15,7 @@ using System.Runtime.Intrinsics.Arm;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using FBAdsManager.Common.Helper;
 namespace FBAdsManager.Module.DataFacebook.Services
 {
     public class DataFacebookService : IDataFacebookService
@@ -22,13 +23,31 @@ namespace FBAdsManager.Module.DataFacebook.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtService _jwtService;
         private readonly CallApiService _callApiService;
+        private readonly TelegramHelper _telegramHelper;
 
-        public DataFacebookService(IUnitOfWork unitOfWork, IJwtService jwtService, CallApiService callApiService)
+        public DataFacebookService(IUnitOfWork unitOfWork, IJwtService jwtService, CallApiService callApiService, TelegramHelper telegramHelper)
         {
+            _telegramHelper = telegramHelper;
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
             _callApiService = callApiService;
         }
+        public async Task<ResponseService> CheckFacebookTokenExpire(string token)
+        {
+            var user = await _jwtService.VerifyTokenAsync(token);
+            var pm = user.Pms.FirstOrDefault();
+
+            if (pm == null)
+                return new ResponseService("Some thing wrong", null);
+            (int statusCode22, BmFbResponse? DataBm) = await _callApiService.GetDataAsync<BmFbResponse>("https://graph.facebook.com/v20.0/" + pm.Id + "/owned_ad_accounts?fields=id,account_id,name&access_token=" + user.AccessTokenFb);
+            if (statusCode22 == 401)
+            {
+                await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
+                return new ResponseService("access token fb expired", null, 401);
+            }
+            return new ResponseService("", null);
+        }
+
         public async Task<ResponseService> CrawlData(string token, DateTime? since, DateTime? until)
         {
             try
@@ -51,7 +70,10 @@ namespace FBAdsManager.Module.DataFacebook.Services
                 {
                     (int statusCode22, BmFbResponse? DataBm) = await _callApiService.GetDataAsync<BmFbResponse>("https://graph.facebook.com/v20.0/" + pm.Id + "/owned_ad_accounts?fields=id,account_id,name&access_token=" + user.AccessTokenFb);
                     if (statusCode22 == 401)
+                    {
+                        await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
                         return new ResponseService("access token fb expired", null, 401);
+                    }
 
                     if (statusCode22 == 200 && DataBm != null && DataBm.data != null)
                         foreach (var l in DataBm.data)
@@ -96,7 +118,10 @@ namespace FBAdsManager.Module.DataFacebook.Services
                     if (statuscode == 405)
                         continue;
                     if (statuscode == 401)
+                    {
+                        await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
                         return new ResponseService("access token fb expired", null, 401);
+                    }
                     if (listcampaign == null || listcampaign.data == null)
                         continue;
 
@@ -155,7 +180,11 @@ namespace FBAdsManager.Module.DataFacebook.Services
                 {
                     string url = "https://graph.facebook.com/v20.0/" + "act_" + acc.AccountId + "/adsets?fields=id,amount_spent,compaign_id,cpm,lifetime_imps,spend,name,targeting,use_new_app_click,time_based_ad_rotation,frequency_cap,delivery_estimate,effective_status,daily_min_spend_target,campaign_spec,bid_constraints,attribution_spec,adset_schedule,start_time,account_id,bid_amount,bid_strategy,budget_remaining,budget_rebalance_flag,buying_type,configured_status,created_time,daily_budget,lifetime_budget,is_skadnetwork_attribution,last_budget_toggling_time,objective,pacing_type,promoted_object,recommendations,smart_promotion_type,source_campaign,source_campaign_id,special_ad_categories,special_ad_category,special_ad_category_country,spend_cap,status,updated_time,adlabels,campaign,campaign_id,conversion_domain,creative_sequence,daily_spend_cap,is_dynamic_creative,is_recommendations_disabled&access_token=" + user.AccessTokenFb + "&limit=100";
                     (int statusCode5, Root? ListAdsets) = await _callApiService.GetDataAsync<Root>(url);
-
+                    if (statusCode5 == 401)
+                    {
+                        await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
+                        return new ResponseService("access token fb expired", null, 401);
+                    }
                     if (statusCode5 == 405)
                         continue;
                     if (ListAdsets == null || ListAdsets.data == null)
@@ -225,6 +254,11 @@ namespace FBAdsManager.Module.DataFacebook.Services
                 foreach (var acc in adsAccounts)
                 {
                     (int statusCode10, RootObject? ListAds) = await _callApiService.GetDataAsync<RootObject>("https://graph.facebook.com/v20.0/" + "act_" + acc.AccountId + "/ads?fields=id,name,source_ad,last_evaluated_time,recommendations,issues_info,inline_link_og_object,inline_link_url,adset_id,campaign_id,configured_status,frequency_cap,effective_status,status,frequency_control_specs,conversion_specs,engagement_audience,bid_amount,bid_info,spend_cap,adcreatives{body,call_to_action_type,configurations,creative_id,creative_type,primary_text,link,link_url,description,headline,image_url,video_url},adlabels,ad_review_feedback,ad_format_type,ad_rotation,ad_delivery_status,ad_optimization_goal,ad_type,adset,campaign,creative,creative_status,creative_type,creative_rotation,creative_summary,custom_event_type,tracking_specs,ad_group_id,created_time,updated_time&access_token=" + user.AccessTokenFb + "&limit=100");
+                    if (statusCode10 == 401)
+                    {
+                        await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
+                        return new ResponseService("access token fb expired", null, 401);
+                    }
                     if (statusCode10 == 405)
                         continue;
                     if (ListAds == null || ListAds.data == null)
@@ -288,6 +322,12 @@ namespace FBAdsManager.Module.DataFacebook.Services
                             for (DateTime currentDate = since.Value; currentDate <= until.Value; currentDate = currentDate.AddDays(1))
                             {
                                 (int statusCode60, insightFbResponse? ListInsightData) = await _callApiService.GetDataAsync<insightFbResponse>("https://graph.facebook.com/v20.0/" + data.id + "/insights?fields=impressions,clicks,spend,ctr,cpm,cpc,cpp,reach,frequency,actions,cost_per_action_type,cost_per_conversion&access_token=" + user.AccessTokenFb + "&time_range[since]=" + currentDate.ToString("yyyy-MM-dd") + "&time_range[until]=" + currentDate.ToString("yyyy-MM-dd"));
+                                if (statusCode60 == 401)
+                                {
+                                    await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
+                                    return new ResponseService("access token fb expired", null, 401);
+                                }
+
                                 if (statusCode60 == 200 && ListInsightData != null && ListInsightData.data != null)
                                 {
                                     var insightFb = ListInsightData.data.FirstOrDefault();
@@ -338,6 +378,11 @@ namespace FBAdsManager.Module.DataFacebook.Services
                         else
                         {
                             (int statusCode60, insightFbResponse? ListInsightData) = await _callApiService.GetDataAsync<insightFbResponse>("https://graph.facebook.com/v20.0/" + data.id + "/insights?fields=impressions,clicks,spend,ctr,cpm,cpc,cpp,reach,frequency,actions,cost_per_action_type,cost_per_conversion&access_token=" + user.AccessTokenFb + "&time_range[since]=" + DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "&time_range[until]=" + DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"));
+                            if (statusCode60 == 401)
+                            {
+                                await _telegramHelper.SendMessage(user.TokenTelegram ?? "", user.ChatId ?? "", "Access Token expired");
+                                return new ResponseService("access token fb expired", null, 401);
+                            }
                             if (statusCode60 == 200 && ListInsightData != null && ListInsightData.data != null)
                             {
                                 var insightFb = ListInsightData.data.FirstOrDefault();
@@ -403,8 +448,6 @@ namespace FBAdsManager.Module.DataFacebook.Services
             {
                 return new ResponseService(e.Message, null);
             }
-
-
         }
     }
 }

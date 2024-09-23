@@ -20,6 +20,10 @@ public partial class User
     [JsonIgnore]
     public Guid? GroupId { get; set; }
     [JsonIgnore]
+    public string? TokenTelegram { get; set; }
+    [JsonIgnore]
+    public string? ChatId { get; set; }
+    [JsonIgnore]
     public virtual ICollection<Pm> Pms { get; set; } = new List<Pm>();
     public virtual Role Role { get; set; } = null!;
     public virtual Group? Group { get; set; }

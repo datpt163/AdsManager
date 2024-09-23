@@ -2,6 +2,7 @@ using FBAdsManager.Common.CallApi;
 using FBAdsManager.Common.ConfigureService;
 using FBAdsManager.Common.Database.DbContexts;
 using FBAdsManager.Common.Database.Repository;
+using FBAdsManager.Common.Helper;
 using FBAdsManager.Common.Jwt;
 using FBAdsManager.Module.Ads.Services;
 using FBAdsManager.Module.AdsAccount.Services;
@@ -32,7 +33,7 @@ builder.Services.AddScoped<DbAdsmanagerContext>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<CallApiService, CallApiService>();
 builder.Services.AddAuthSerivce(builder.Configuration);
-
+builder.Services.AddScoped<TelegramHelper, TelegramHelper>();
 #region AddServiceForController
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();

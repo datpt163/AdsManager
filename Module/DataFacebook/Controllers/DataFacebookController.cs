@@ -32,5 +32,23 @@ namespace FBAdsManager.Module.DataFacebook.Controllers
                 return ResponseBadRequest(result.ErrorMessage);
             }
         }
+
+        [HttpGet("check-access-token")]
+        [Authorize(Roles = "BM")]
+        public async Task<IActionResult> CheckAccssToken()
+        {
+            string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _dataFacebookService.CheckFacebookTokenExpire(token);
+            if (string.IsNullOrEmpty(result.ErrorMessage))
+                return ResponseOk(result.Data);
+            else
+            {
+                if (result.StatusCode == 404)
+                    return ResponseNotFound(result.ErrorMessage);
+                if (result.StatusCode == 401)
+                    return ResponseUnauthorized(result.ErrorMessage);
+                return ResponseBadRequest(result.ErrorMessage);
+            }
+        }
     }
 }
