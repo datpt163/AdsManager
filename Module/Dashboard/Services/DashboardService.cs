@@ -37,7 +37,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     double totalSpend = 0;
                     var insight = new List<FBAdsManager.Common.Database.Data.Insight>();
 
-                    foreach (var adAccount in o.AdsAccounts)
+                    foreach (var adAccount in o.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                     {
                         var currency = adAccount.Currency ?? "";
                         foreach (var campaign in adAccount.Campaigns)
@@ -102,7 +102,7 @@ namespace FBAdsManager.Module.Dashboard.Services
 
                     foreach (var employee in o.Employees)
                     {
-                        foreach (var adAccount in employee.AdsAccounts)
+                        foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                         {
                             var currency = adAccount.Currency ?? "";
                             foreach (var campaign in adAccount.Campaigns)
@@ -171,7 +171,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     {
                         foreach (var employee in group.Employees)
                         {
-                            foreach (var adAccount in employee.AdsAccounts)
+                            foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                             {
                                 var currency = adAccount.Currency ?? "";
                                 foreach (var campaign in adAccount.Campaigns)
@@ -242,7 +242,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                         {
                             foreach (var employee in group.Employees)
                             {
-                                foreach (var adAccount in employee.AdsAccounts)
+                                foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                                 {
                                     var currency = adAccount.Currency ?? "";
                                     foreach (var campaign in adAccount.Campaigns)
@@ -315,7 +315,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     double total = 0;
                     var insight = new List<FBAdsManager.Common.Database.Data.Insight>();
 
-                    foreach (var adAccount in o.AdsAccounts)
+                    foreach (var adAccount in o.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                     {
                         total += adAccount.Campaigns.Where(c => DateTime.Parse(c.StartTime ?? "1555-08-08") >= start && DateTime.Parse(c.StartTime ?? "1555-08-08") <= end).Count();
                     }
@@ -336,7 +336,7 @@ namespace FBAdsManager.Module.Dashboard.Services
 
                     foreach (var employee in o.Employees)
                     {
-                        foreach (var adAccount in employee.AdsAccounts)
+                        foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                         {
                             total += adAccount.Campaigns.Where(c => DateTime.Parse(c.StartTime ?? "1555-08-08") >= start && DateTime.Parse(c.StartTime ?? "1555-08-08") <= end).Count();
                         }
@@ -359,7 +359,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     {
                         foreach (var employee in group.Employees)
                         {
-                            foreach (var adAccount in employee.AdsAccounts)
+                            foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                             {
                                 total += adAccount.Campaigns.Where(c => DateTime.Parse(c.StartTime ?? "1555-08-08") >= start && DateTime.Parse(c.StartTime ?? "1555-08-08") <= end).Count();
                             }
@@ -384,7 +384,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                         {
                             foreach (var employee in group.Employees)
                             {
-                                foreach (var adAccount in employee.AdsAccounts)
+                                foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                                 {
                                     total += adAccount.Campaigns.Where(c => DateTime.Parse(c.StartTime ?? "1555-08-08") >= start && DateTime.Parse(c.StartTime ?? "1555-08-08") <= end).Count();
                                 }
@@ -416,7 +416,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     double totalSpend = 0;
                     var insight = new List<FBAdsManager.Common.Database.Data.Insight>();
 
-                    foreach (var adAccount in o.AdsAccounts)
+                    foreach (var adAccount in o.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                     {
                         var currency = adAccount.Currency ?? "";
                         foreach (var campaign in adAccount.Campaigns)
@@ -463,7 +463,7 @@ namespace FBAdsManager.Module.Dashboard.Services
 
                     foreach (var employee in o.Employees)
                     {
-                        foreach (var adAccount in employee.AdsAccounts)
+                        foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                         {
                             var currency = adAccount.Currency ?? "";
                             foreach (var campaign in adAccount.Campaigns)
@@ -514,7 +514,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     {
                         foreach (var employee in group.Employees)
                         {
-                            foreach (var adAccount in employee.AdsAccounts)
+                            foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                             {
                                 var currency = adAccount.Currency ?? "";
                                 foreach (var campaign in adAccount.Campaigns)
@@ -567,7 +567,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                         {
                             foreach (var employee in group.Employees)
                             {
-                                foreach (var adAccount in employee.AdsAccounts)
+                                foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                                 {
                                     var currency = adAccount.Currency ?? "";
                                     foreach (var campaign in adAccount.Campaigns)
@@ -628,7 +628,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     double totalSpend = 0;
                     var insight = new List<FBAdsManager.Common.Database.Data.Insight>();
 
-                    foreach (var adAccount in o.AdsAccounts)
+                    foreach (var adAccount in o.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                     {
                         var currency = adAccount.Currency ?? "";
                         foreach (var campaign in adAccount.Campaigns)
@@ -711,7 +711,7 @@ namespace FBAdsManager.Module.Dashboard.Services
 
                     foreach (var employee in o.Employees)
                     {
-                        foreach (var adAccount in employee.AdsAccounts)
+                        foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                         {
                             var currency = adAccount.Currency ?? "";
                             foreach (var campaign in adAccount.Campaigns)
@@ -798,7 +798,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                     {
                         foreach (var employee in group.Employees)
                         {
-                            foreach (var adAccount in employee.AdsAccounts)
+                            foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                             {
                                 var currency = adAccount.Currency ?? "";
                                 foreach (var campaign in adAccount.Campaigns)
@@ -887,7 +887,7 @@ namespace FBAdsManager.Module.Dashboard.Services
                         {
                             foreach (var employee in group.Employees)
                             {
-                                foreach (var adAccount in employee.AdsAccounts)
+                                foreach (var adAccount in employee.AdsAccounts.Where(x => x.IsDelete == false).ToList())
                                 {
                                     var currency = adAccount.Currency ?? "";
                                     foreach (var campaign in adAccount.Campaigns)
