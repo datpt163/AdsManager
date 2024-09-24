@@ -1,20 +1,26 @@
-﻿using FBAdsManager.Common.Database.Data;
+﻿using FBAdsManager.Common.CallApi;
+using FBAdsManager.Common.Database.Data;
 using FBAdsManager.Common.Database.Repository;
+using FBAdsManager.Common.Helper;
 using FBAdsManager.Common.Paging;
 using FBAdsManager.Common.Response.ResponseService;
+using FBAdsManager.Models;
 using FBAdsManager.Module.Dashboard.Responses;
 using FBAdsManager.Module.DataFacebook.Responses;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FBAdsManager.Module.Ads.Services
 {
     public class AdsService : IAdsService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public AdsService(IUnitOfWork unitOfWork)
+        private readonly CallApiService _callApiService;
+        public AdsService(IUnitOfWork unitOfWork, CallApiService callApiService)
         {
+            _callApiService = callApiService;
             _unitOfWork = unitOfWork;
         }
 
@@ -28,14 +34,16 @@ namespace FBAdsManager.Module.Ads.Services
                     
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
                 var adses = new List<AdsResponse>();
-                var pagedOrganizationQuery = await _unitOfWork.Adses.Find(c => c.AdsetId != null && c.AdsetId.Equals(adsetId)).OrderBy(c => c.CreatedTime).Include(c => c.Insights).Skip(skip).Take(pageSize.Value).ToListAsync();
+                var pagedOrganizationQuery = await _unitOfWork.Adses.Find(c => c.AdsetId != null && c.AdsetId.Equals(adsetId)).OrderBy(c => c.CreatedTime).Include(c => c.Insights).Include(c => c.Adset).ThenInclude(c => c.Campaign).ThenInclude(c => c.Account).ThenInclude(c => c.Pms).ThenInclude(c => c.User).Skip(skip).Take(pageSize.Value).ToListAsync();
+                
                 foreach(var l in pagedOrganizationQuery)
                 {
                     var ads = new AdsResponse();
-                    double impression = 0, clicks = 0, spend = 0, reach = 0, cpm = 0, ctr = 0, cpc = 0, frequency = 0,
+                    double impression = 0, clicks = 0, spend = 0, cpm = 0, ctr = 0, cpc = 0, 
                     onsiteConversionTotalMessagingConnection = 0, onsiteConversionMessagingFirstReply = 0,
                     postEngagement = 0, pageEngagement = 0, photoView = 0, videoPlay = 0, videoView = 0,
                     video10sView = 0, video30sView = 0, videoCompleteView = 0, onsiteConversionMessagingConversationStarted7d = 0;
+                    string reach = "", frequency = "";
 
                     ads.Id = l.Id;
                     ads.AdsetId = l.AdsetId;
@@ -57,7 +65,6 @@ namespace FBAdsManager.Module.Ads.Services
                             impression += double.Parse(i.Impressions ?? "0");
                             clicks += double.Parse(i.Clicks ?? "0");
                             spend += double.Parse(i.Spend ?? "0");
-                            reach += double.Parse(i.Reach ?? "0");
                             if ((!string.IsNullOrEmpty(i.Actions)) && !i.Actions.Equals("null"))
                             {
                                 var action = JsonSerializer.Deserialize<List<FBAdsManager.Module.DataFacebook.Responses.Action>>(i.Actions);
@@ -101,8 +108,30 @@ namespace FBAdsManager.Module.Ads.Services
                     if (clicks != 0)
                         cpc = (spend / clicks);
 
-                    if (reach != 0)
-                        frequency = impression / reach;
+
+                    var pms = l.Adset == null ? null : (l.Adset.Campaign == null ? null : (l.Adset.Campaign.Account == null ? null : l.Adset.Campaign.Account.Pms));
+                    bool check = false;
+
+                    if (pms != null && pms.Count() > 0)
+                    {   
+                        foreach(var pm in pms)
+                        {
+                            (int statusCode, insightFbResponse? ListInsightData) = await _callApiService.GetDataAsync<insightFbResponse>("https://graph.facebook.com/v20.0/" + l.Id + "/insights?fields=impressions,clicks,spend,ctr,cpm,cpc,cpp,reach,frequency,actions,cost_per_action_type,cost_per_conversion&access_token=" + (pm.User == null ? null : pm.User.AccessTokenFb) + "&time_range[since]=" + start.ToString("yyyy-MM-dd") + "&time_range[until]=" + end.ToString("yyyy-MM-dd"));
+                            if (statusCode == 200)
+                            {
+                                reach = ListInsightData == null ? "0" : (ListInsightData.data.FirstOrDefault() == null ? "0" : ListInsightData.data.FirstOrDefault().reach);
+                                frequency = ListInsightData == null ? "0" : (ListInsightData.data.FirstOrDefault() == null ? "0" : ListInsightData.data.FirstOrDefault().frequency);
+                                check = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!check)
+                    {
+                        reach = "dữ liệu bị lỗi";
+                        frequency = "dữ liệu bị lỗi";
+                    }
 
                     ads.Insight = new InsightResponse()
                     {

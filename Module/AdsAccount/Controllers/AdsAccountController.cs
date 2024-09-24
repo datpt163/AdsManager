@@ -38,9 +38,9 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize)
+        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, bool? isDelete)
         {
-            var result = await _adsAccountService.GetListAsync(pageIndex, pageSize);
+            var result = await _adsAccountService.GetListAsync(pageIndex, pageSize, isDelete);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);
@@ -51,6 +51,15 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
         public async Task<IActionResult> GetList2([FromQuery] int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId, Guid? groupId, Guid? employeeId)
         {
             var result = await _adsAccountService.GetListAsyncActived(pageIndex, pageSize, organizationId, branchId, groupId, employeeId);
+            if (string.IsNullOrEmpty(result.ErrorMessage))
+                return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
+            return ResponseBadRequest(result.ErrorMessage);
+        }
+        [HttpPut("{id}/toggle")]
+        [Authorize]
+        public async Task<IActionResult> Toggle(string id)
+        {
+            var result = await _adsAccountService.Toggle(id);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);

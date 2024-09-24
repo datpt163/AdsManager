@@ -201,7 +201,7 @@ public partial class DbAdsmanagerContext : DbContext
                     "AdsAccountPm",
                     r => r.HasOne<Pm>().WithMany()
                         .HasForeignKey("PmId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("adsAccountPms_ibfk_2"),
                     l => l.HasOne<AdsAccount>().WithMany()
                         .HasForeignKey("AdsAccountId")

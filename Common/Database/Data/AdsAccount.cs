@@ -40,6 +40,7 @@ public partial class AdsAccount
 
     public int? IsPersonal { get; set; }
     public int? IsActive { get; set; }
+    public bool IsDelete { get; set; }
     public DateTime? UpdateDataTime { get; set; }
     [JsonIgnore]
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
