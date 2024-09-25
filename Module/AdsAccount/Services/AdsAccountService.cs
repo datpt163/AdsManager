@@ -82,7 +82,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
             adsAccount.Pms = new List<Pm>();
             _unitOfWork.AdsAccounts.Update(adsAccount);
             _unitOfWork.AdsAccounts.Remove(adsAccount);
-             await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", null);
         }
 
