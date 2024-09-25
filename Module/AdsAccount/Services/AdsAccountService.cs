@@ -1,13 +1,17 @@
 ﻿using FBAdsManager.Common.CallApi;
 using FBAdsManager.Common.Database.Data;
 using FBAdsManager.Common.Database.Repository;
+using FBAdsManager.Common.Helper;
 using FBAdsManager.Common.Jwt;
 using FBAdsManager.Common.Paging;
 using FBAdsManager.Common.Response.ResponseService;
 using FBAdsManager.Module.AdsAccount.Requests;
 using FBAdsManager.Module.AdsAccount.Responses;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FBAdsManager.Module.AdsAccount.Services
 {
@@ -16,12 +20,15 @@ namespace FBAdsManager.Module.AdsAccount.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtService _jwtService;
         private readonly CallApiService _callApiService;
+        private readonly IExcelHelper _excelHelper;
 
-        public AdsAccountService(IUnitOfWork unitOfWork, IJwtService jwtService, CallApiService callApiService)
+
+        public AdsAccountService(IUnitOfWork unitOfWork, IJwtService jwtService, CallApiService callApiService, IExcelHelper excelHelper)
         {
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
             _callApiService = callApiService;
+            _excelHelper = excelHelper;
         }
 
         public async Task<ResponseService> AddAsync(string token, AddAccountRequest request)
@@ -58,6 +65,89 @@ namespace FBAdsManager.Module.AdsAccount.Services
             _unitOfWork.AdsAccounts.Add(adsAccount);
             await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", adsAccount);
+        }
+
+        public async Task<ResponseService> AddByExcel(IFormFile file)
+        {
+            var errors = new List<ValidationError>();
+            var result = await _excelHelper.ReadExcelFileAsync(file);
+            for (int i = 0; i < result.Count; i++)
+            {
+                var account = result[i];
+                if (!long.TryParse(account.AccountID, out _))
+                {
+                    errors.Add(new ValidationError
+                    {
+                        RowIndex = i + 1,
+                        ErrorMessage = $"AccountID '{account.AccountID}' tại dòng {i + 1} không phải là số."
+                    });
+                }
+
+                if (!account.Email.Contains("@"))
+                {
+                    errors.Add(new ValidationError
+                    {
+                        RowIndex = i + 1,
+                        ErrorMessage = $"Email '{account.Email}' tại dòng {i + 1} không hợp lệ (không chứa @)."
+                    });
+                }
+
+                var pmIds = account.PmId.Split(',');
+                foreach (var pmId in pmIds)
+                {
+                    if (!long.TryParse(pmId.Trim(), out _))
+                    {
+                        errors.Add(new ValidationError
+                        {
+                            RowIndex = i + 1,
+                            ErrorMessage = $"PmId '{account.PmId}' tại dòng {i + 1} chứa giá trị không phải số."
+                        });
+                        break; 
+                    }
+                }
+
+                var employee = _unitOfWork.Employees.Find(x => x.Email != null && x.Email.Trim().Equals(account.Email.Trim())).Include(c => c.Group).FirstOrDefault();
+                if(employee != null)
+                {
+                    errors.Add(new ValidationError
+                    {
+                        RowIndex = i + 1,
+                        ErrorMessage = "Không tìm thấy nhân viên với email này"
+                    });
+                }
+
+                var adsAcc = _unitOfWork.AdsAccounts.FindOne(x => x.AccountId.Trim().Equals(account.AccountID.Trim()));
+                if(adsAcc != null)
+                {
+                    errors.Add(new ValidationError
+                    {
+                        RowIndex = i + 1,
+                        ErrorMessage = "Tài khoản quảng cáo này đã được thêm vào hệ thống trước đó"
+                    });
+                }
+
+                var listPm = new List<Pm>();
+                foreach (var l in pmIds)
+                {
+                    var pm = _unitOfWork.Pms.Find(x => x.Id == l).Include(c => c.User).ThenInclude(c => c.Group).FirstOrDefault();
+                    if (pm == null)
+                    {
+                        errors.Add(new ValidationError
+                        {
+                            RowIndex = i + 1,
+                            ErrorMessage = "Pm Id này chưa tồn tại trong hệ thống"
+                        });
+                    }
+                    if (pm.User != pm.User != null && pm.User.GroupId != null && pm.User.GroupId == employee.GroupId)
+                        listPm.Add(pm);
+                    else
+                    {
+                        return new ResponseService("Tài khoản BM và employee không thuộc cùng một đội nhóm", null, 404);
+                    }
+                }
+            }
+
+            return new ResponseService("", null);
         }
 
         public async Task<ResponseService> DeleteAsync(string id)
@@ -193,5 +283,11 @@ namespace FBAdsManager.Module.AdsAccount.Services
             await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", null);
         }
+    }
+
+    public class ValidationError
+    {
+        public int RowIndex { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
     }
 }

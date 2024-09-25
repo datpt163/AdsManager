@@ -4,7 +4,6 @@ using FBAdsManager.Module.AdsAccount.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 namespace FBAdsManager.Module.AdsAccount.Controllers
 {
     [Route("api/adsAccount")]
@@ -13,7 +12,7 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
     {
         private readonly IAdsAccountService _adsAccountService;
 
-        public AdsAccountController(IAdsAccountService adsAccountService)
+     public AdsAccountController(IAdsAccountService adsAccountService)
         {
             _adsAccountService = adsAccountService;
         }
@@ -83,6 +82,19 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOk();
             return ResponseBadRequest(result.ErrorMessage);
+        }
+
+        [HttpPost("excel")]
+        [Authorize]
+        public async Task<IActionResult> AddByExcel([FromForm] AddByExcel request)
+        {
+            if (request.file == null || request.file.Length == 0)
+            {
+                return BadRequest("File is missing");
+            }
+            var result = await _adsAccountService.AddByExcel(request.file);
+
+            return Ok(result);
         }
     }
 }

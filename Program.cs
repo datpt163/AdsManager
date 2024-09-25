@@ -34,6 +34,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<CallApiService, CallApiService>();
 builder.Services.AddAuthSerivce(builder.Configuration);
 builder.Services.AddScoped<TelegramHelper, TelegramHelper>();
+builder.Services.AddScoped<IExcelHelper, ExcelHelper>();
 #region AddServiceForController
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
