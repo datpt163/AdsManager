@@ -89,6 +89,9 @@ namespace FBAdsManager.Module.AdsAccount.Services
                     {
                         RowIndex = i + 1,
                         ErrorMessage = $"Email '{account.Email}' tại dòng {i + 1} không hợp lệ (không chứa @)."
+                 
+                    
+                    
                     });
                 }
 
