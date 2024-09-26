@@ -30,7 +30,7 @@ namespace FBAdsManager.Module.Auths.Services
             if (string.IsNullOrEmpty(request.Password))
                 return new ResponseService("User name rõng", null, 400);
 
-            var user = await _unitOfWork.Users.Find(x => x.Email.Equals(request.UserName) && x.Role.Name != "BM").Include(c => c.Role).FirstOrDefaultAsync();
+            var user = await _unitOfWork.Users.Find(x => x.Email.Equals(request.UserName) && x.Role.Name != "BM").Include(c => c.Role).Include(c => c.Organization).Include(c => c.Branch).Include(c => c.Group).FirstOrDefaultAsync();
             if(user == null)
                 return new ResponseService("Tài khoản không tồn tại", null, 404);
 
@@ -40,9 +40,17 @@ namespace FBAdsManager.Module.Auths.Services
             if (user.Password == null || !user.Password.Equals(request.Password))
                 return new ResponseService("Mật khẩu không chính xác", null, 400);
 
+            var identify = "";
+            if (user.Role.Name == "ORGANIZATION")
+                identify = user.Organization == null ? "" : user.Organization.Id + "";
+            else if (user.Role.Name == "BRANCH")
+                identify = user.Branch == null ? "" : user.Branch.Id + "";
+            else if (user.Role.Name == "GROUP")
+                identify = user.Group == null ? "" : user.Group.Id + "";
+
             var accessToken = _jwtService.GenerateJwtToken(user, DateTime.Now.AddMonths(1));
 
-            return new ResponseService("", new { AccessToken = accessToken, Role = user.Role.Name });
+            return new ResponseService("", new { AccessToken = accessToken, Role = user.Role.Name, IdentifyId = identify});
         }
 
         public async Task<ResponseService> LoginByFacebook(string accessTokenFb)

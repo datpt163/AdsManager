@@ -90,11 +90,12 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
         {
             if (request.file == null || request.file.Length == 0)
             {
-                return BadRequest("File is missing");
+                return ResponseBadRequest("File not found");
             }
             var result = await _adsAccountService.AddByExcel(request.file);
-
-            return Ok(result);
+            if(!string.IsNullOrEmpty(result.ErrorMessage))
+                return ResponseBadRequest(result.ErrorMessage);
+            return ResponseOk(result.Data);
         }
     }
 }

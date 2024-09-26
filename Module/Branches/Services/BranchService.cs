@@ -39,7 +39,7 @@ namespace FBAdsManager.Module.Branches.Services
 
         public async Task<ResponseService> Delete(Guid id)
         {
-            var branch = await _unitOfWork.Branchs.Find(c => c.Id == id).Include(c => c.Groups).ThenInclude(c => c.Employees).FirstOrDefaultAsync();
+            var branch = await _unitOfWork.Branchs.Find(c => c.Id == id).Include(c => c.Users).Include(c => c.Groups).ThenInclude(c => c.Employees).FirstOrDefaultAsync();
             if (branch == null)
                 return new ResponseService("Not found", null);
 
@@ -51,6 +51,12 @@ namespace FBAdsManager.Module.Branches.Services
             }
             if(error != "Phải xóa tất cả các đội nhóm thuộc chi nhánh này trước khi xóa, chi nhánh này hiện đang có các đội nhóm sau: ")
                 return new ResponseService(error.Substring(0, error.Length - 2), null);
+            else
+            {
+                if (branch.Users.Count() > 0)
+                    return new ResponseService("Phải xóa tất cả trường chi nhánh", null);
+            }
+
             branch.DeleteDate = DateTime.Now;
             _unitOfWork.Branchs.Update(branch);
             await _unitOfWork.SaveChangesAsync();

@@ -19,7 +19,7 @@ namespace FBAdsManager.Module.Branches.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,ORGANIZATION")]
         public async Task<IActionResult> Add([FromBody] AddBranchRequest request)
         {
             var result = await _branchService.AddAsync(request);
@@ -44,7 +44,7 @@ namespace FBAdsManager.Module.Branches.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,ORGANIZATION")]
         public async Task<IActionResult> Delete([FromQuery]Guid id)
         {
             var result = await _branchService.Delete(id);
@@ -64,7 +64,7 @@ namespace FBAdsManager.Module.Branches.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,ORGANIZATION")]
         public async Task<IActionResult> Update([FromBody] UpdateBranchRequest request)
         {
             var result = await _branchService.Update(request);

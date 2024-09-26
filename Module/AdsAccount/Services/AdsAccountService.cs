@@ -10,6 +10,7 @@ using FBAdsManager.Module.AdsAccount.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
+using System.Text.Json;
 using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -71,11 +72,15 @@ namespace FBAdsManager.Module.AdsAccount.Services
         {
             var errors = new List<ValidationError>();
             var result = await _excelHelper.ReadExcelFileAsync(file);
+            var adsAccounts = new List<FBAdsManager.Common.Database.Data.AdsAccount>();
+
             for (int i = 0; i < result.Count; i++)
             {
+                bool checkError = false;
                 var account = result[i];
                 if (!long.TryParse(account.AccountID, out _))
                 {
+                    checkError = true;
                     errors.Add(new ValidationError
                     {
                         RowIndex = i + 1,
@@ -85,6 +90,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
 
                 if (!account.Email.Contains("@"))
                 {
+                    checkError = true;
                     errors.Add(new ValidationError
                     {
                         RowIndex = i + 1,
@@ -97,6 +103,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
                 {
                     if (!long.TryParse(pmId.Trim(), out _))
                     {
+                        checkError = true;
                         errors.Add(new ValidationError
                         {
                             RowIndex = i + 1,
@@ -106,9 +113,10 @@ namespace FBAdsManager.Module.AdsAccount.Services
                     }
                 }
 
-                var employee = _unitOfWork.Employees.Find(x => x.Email != null && x.Email.Trim().Equals(account.Email.Trim())).Include(c => c.Group).FirstOrDefault();
-                if(employee != null)
+                var employee = _unitOfWork.Employees.Find(x => x.DeleteDate == null&& x.Email != null && x.Email.Trim().Equals(account.Email.Trim())).Include(c => c.Group).FirstOrDefault();
+                if(employee == null)
                 {
+                    checkError = true;
                     errors.Add(new ValidationError
                     {
                         RowIndex = i + 1,
@@ -119,12 +127,16 @@ namespace FBAdsManager.Module.AdsAccount.Services
                 var adsAcc = _unitOfWork.AdsAccounts.FindOne(x => x.AccountId.Trim().Equals(account.AccountID.Trim()));
                 if(adsAcc != null)
                 {
+                    checkError = true;
                     errors.Add(new ValidationError
                     {
                         RowIndex = i + 1,
                         ErrorMessage = "Tài khoản quảng cáo này đã được thêm vào hệ thống trước đó"
                     });
                 }
+
+                if (checkError == true)
+                    continue;
 
                 var listPm = new List<Pm>();
                 foreach (var l in pmIds)
@@ -138,16 +150,30 @@ namespace FBAdsManager.Module.AdsAccount.Services
                             ErrorMessage = "Pm Id này chưa tồn tại trong hệ thống"
                         });
                     }
-                    if (pm.User != pm.User != null && pm.User.GroupId != null && pm.User.GroupId == employee.GroupId)
-                        listPm.Add(pm);
                     else
                     {
-                        return new ResponseService("Tài khoản BM và employee không thuộc cùng một đội nhóm", null, 404);
+                        if ( pm.User != null && pm.User.GroupId != null && pm.User.GroupId == employee.GroupId)
+                            listPm.Add(pm);
+                        else
+                        {
+                            errors.Add(new ValidationError
+                            {
+                                RowIndex = i + 1,
+                                ErrorMessage = "Tài khoản BM và employee không thuộc cùng một đội nhóm"
+                            });
+                        }
                     }
                 }
+                adsAccounts.Add(new FBAdsManager.Common.Database.Data.AdsAccount() {AccountId = account.AccountID, EmployeeId = employee.Id, Pms = listPm});
             }
-
-            return new ResponseService("", null);
+            if(errors.Count > 0)
+                return new ResponseService(JsonSerializer.Serialize(errors), null);
+            else
+            {
+                _unitOfWork.AdsAccounts.AddRange(adsAccounts);
+                await _unitOfWork.SaveChangesAsync();
+                return new ResponseService("", null);
+            }
         }
 
         public async Task<ResponseService> DeleteAsync(string id)

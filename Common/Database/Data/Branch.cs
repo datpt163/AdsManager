@@ -20,4 +20,6 @@ public partial class Branch
     [JsonIgnore]
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
     public virtual Organization? Organization { get; set; } = null!;
+    [JsonIgnore]
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

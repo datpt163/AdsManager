@@ -29,9 +29,26 @@ namespace FBAdsManager.Module.Users.Services
             {
                 if (request.Password == null || request.Password.Length < 6)
                     return new ResponseService("Pass must >= 6 character", null, 400);
-                if (request.GroupId != null)
+
+                if (role.Name.Equals("GROUP"))
                 {
-                    return new ResponseService("Just PM have role", null, 404);
+                    var group = _unitOfWork.Groups.FindOne(x => x.Id == (request.GroupId == null ? Guid.NewGuid() : request.GroupId.Value));
+                    if(group == null)
+                        return new ResponseService("Group not found", null, 404);
+                }
+
+                if (role.Name.Equals("BRANCH"))
+                {
+                    var branch = _unitOfWork.Branchs.FindOne(x => x.Id == (request.BranchId == null ? Guid.NewGuid() : request.BranchId.Value));
+                    if (branch == null)
+                        return new ResponseService("Branch not found", null, 404);
+                }
+
+                if (role.Name.Equals("ORGANIZATION"))
+                {
+                    var organization = _unitOfWork.Organizations.FindOne(x => x.Id == (request.OrganizationId == null ? Guid.NewGuid() : request.OrganizationId.Value));
+                    if (organization == null)
+                        return new ResponseService("organization not found", null, 404);
                 }
             }
             else
@@ -49,16 +66,17 @@ namespace FBAdsManager.Module.Users.Services
                     return new ResponseService("PM must have group", null, 404);
                 }
             }
+
             var User = _unitOfWork.Users.Find(x => (x.Email.Trim().Equals(request.Email.Trim()) && x.IsActive == true) && x.Role.Name != "BM").FirstOrDefault();
             if (User != null)
                 return new ResponseService("Email này đã được sử dụng ở một tài khoản khác", null);
-            var userAdd = new Common.Database.Data.User() { Email = request.Email.Trim(), Password = request.Password, GroupId = request.GroupId, IsActive = true, RoleId = request.RoleId };
+            var userAdd = new Common.Database.Data.User() { Email = request.Email.Trim(), Password = request.Password, GroupId = request.GroupId, IsActive = true, RoleId = request.RoleId, OrganizationId = request.OrganizationId, BranchId = request.BranchId };
             _unitOfWork.Users.Add(userAdd);
             await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", userAdd);
         }
 
-        public async Task<ResponseService> GetListAsyncSystem(int? pageIndex, int? pageSize)
+        public async Task<ResponseService> GetListAsyncSystem(int? pageIndex, int? pageSize, Guid? roleId)
         {
             if (pageIndex != null && pageSize != null)
             {
@@ -67,6 +85,8 @@ namespace FBAdsManager.Module.Users.Services
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
                 var pagedUserQuery = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name != "BM").Include(c => c.Group).Include(c => c.Role).Skip(skip).Take(pageSize.Value);
+                if (roleId.HasValue)
+                    pagedUserQuery = pagedUserQuery.Where(x => x.RoleId == roleId.Value);
                 var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && !x.Role.Name.Equals("BM")).Count();
                 return new ResponseService("", pagedUserQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
@@ -211,7 +231,7 @@ namespace FBAdsManager.Module.Users.Services
 
         public async Task<ResponseService> UpdateSystemAsync(UpdateUserSystemRequest request)
         {
-            var user = _unitOfWork.Users.FindOne(x => x.Id == request.Id);
+            var user = _unitOfWork.Users.Find(x => x.Id == request.Id).Include(c => c.Role).Include(c => c.Organization).Include(c => c.Branch).Include(c => c.Group).FirstOrDefault();
             if (user == null)
                 return new ResponseService("User not found", null, 404);
             var role = _unitOfWork.Roles.FindOne(x => x.Id == request.RoleId);
@@ -225,6 +245,28 @@ namespace FBAdsManager.Module.Users.Services
             var userCheckEmail = _unitOfWork.Users.FindOne(x => (x.Email.Trim().Equals(request.Email.Trim()) && x.IsActive == true) && x.Role.Name != "BM" && x.Id != request.Id);
             if(userCheckEmail != null)
                 return new ResponseService("Tài khoản email này đã được sử dụng bởi một tài khoản khác", null, 400);
+            if (user.Role.Name.Equals("ORGANIZATION"))
+            {
+                var organization = _unitOfWork.Organizations.FindOne(x => x.Id == (request.OrganizationId == null ? Guid.NewGuid() : request.OrganizationId.Value));
+                if(organization == null)
+                    return new ResponseService("Không tìm thấy tổ chức này", null, 400);
+            }
+
+            if (user.Role.Name.Equals("BRANCH"))
+            {
+                var branch = _unitOfWork.Branchs.FindOne(x => x.Id == (request.BranchId == null ? Guid.NewGuid() : request.BranchId.Value));
+                if (branch == null)
+                    return new ResponseService("Không tìm thấy chi nhánh này", null, 400);
+            }
+
+            if (user.Role.Name.Equals("GROUP"))
+            {
+                var group = _unitOfWork.Groups.FindOne(x => x.Id == (request.GroupId == null ? Guid.NewGuid() : request.GroupId.Value));
+                if (group == null)
+                    return new ResponseService("Không tìm thấy đội nhóm này", null, 400);
+            }
+
+
             user.Email = request.Email;
             user.Password = request.Password;
             user.RoleId = request.RoleId;

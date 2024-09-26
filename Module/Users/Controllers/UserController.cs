@@ -20,9 +20,9 @@ namespace FBAdsManager.Module.Users.Controllers
 
         [HttpGet("system")]
         [Authorize]
-        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize)
+        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, Guid? roleId)
         {
-            var result = await _userService.GetListAsyncSystem(pageIndex, pageSize);
+            var result = await _userService.GetListAsyncSystem(pageIndex, pageSize, roleId);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);

@@ -59,20 +59,24 @@ namespace FBAdsManager.Module.Organizations.Services
 
         public async Task<ResponseService> Delete(Guid id)
         {
-            var organization = await _unitOfWork.Organizations.Find(c => c.Id == id).Include(c => c.Branches).ThenInclude(c => c.Groups).ThenInclude(c => c.Employees).FirstOrDefaultAsync();
+            var organization = await _unitOfWork.Organizations.Find(c => c.Id == id).Include(c => c.Users).Include(c => c.Branches).ThenInclude(c => c.Groups).ThenInclude(c => c.Employees).FirstOrDefaultAsync();
             if (organization == null)
                 return new ResponseService("Not found", null);
             organization.DeleteDate = DateTime.Now;
-
             var error = "Phải xóa tất cả các chi nhánh thuộc hệ thống này trước khi xóa, hệ thống này hiện đang có các chi nhánh sau: ";
-
             foreach (var s in organization.Branches)
             {
                 if (s.DeleteDate == null)
                     error += (s.Name + " ,");
             }
+
             if(error != "Phải xóa tất cả các chi nhánh thuộc hệ thống này trước khi xóa, hệ thống này hiện đang có các chi nhánh sau: ")
                 return new ResponseService(error.Substring(0, error.Length - 2), null);
+            else
+            {
+                if(organization.Users.Count() > 0)
+                    return new ResponseService("Phải xóa tất cả trường hệ thống", null);
+            }
 
             _unitOfWork.Organizations.Update(organization);
             await _unitOfWork.SaveChangesAsync();

@@ -603,6 +603,14 @@ public partial class DbAdsmanagerContext : DbContext
                 .HasForeignKey(d => d.GroupId)
                 .HasConstraintName("ten_khoa_ngoai");
 
+
+            entity.HasOne(d => d.Branch).WithMany(p => p.Users)
+                .HasForeignKey(d => d.BranchId);
+
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Users)
+                .HasForeignKey(d => d.OrganizationId);
+
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

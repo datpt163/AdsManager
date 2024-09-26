@@ -8,5 +8,7 @@ namespace FBAdsManager.Module.Users.Requests
         public string? Password { get; set; } = string.Empty!;
         public Guid RoleId { get; set; }
         public Guid? GroupId { get; set; }
+        public Guid? BranchId { get; set; }
+        public Guid? OrganizationId { get; set; }
     }
 }

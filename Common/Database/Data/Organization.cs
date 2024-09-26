@@ -17,4 +17,6 @@ public partial class Organization
     public DateTime? DeleteDate { get; set; }
     [JsonIgnore]
     public virtual ICollection<Branch> Branches { get; set; } = new List<Branch>();
+    [JsonIgnore]
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

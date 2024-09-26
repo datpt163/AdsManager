@@ -39,7 +39,7 @@ namespace FBAdsManager.Module.Groups.Services
 
         public async Task<ResponseService> Delete(Guid id)
         {
-            var group = await _unitOfWork.Groups.Find(c => c.Id == id).Include(c => c.Employees).Include(c => c.Users).FirstOrDefaultAsync();
+            var group = await _unitOfWork.Groups.Find(c => c.Id == id).Include(c => c.Users).Include(c => c.Employees).Include(c => c.Users).FirstOrDefaultAsync();
             if (group == null)
                 return new ResponseService("Not found", null);
             group.DeleteDate = DateTime.Now;
@@ -64,6 +64,11 @@ namespace FBAdsManager.Module.Groups.Services
 
             if (error2 != "Phải xóa tất cả các BM thuộc đội nhóm này trước khi xóa, đội nhóm này hiện đang có BM sau: ")
                 return new ResponseService(error2.Substring(0, error2.Length - 2), null);
+            else
+            {
+                if (group.Users.Count() > 0)
+                    return new ResponseService("Phải xóa tất cả trường đội nhóm hoặc bm thuộc đội nhóm này trước", null);
+            }
 
             _unitOfWork.Groups.Update(group);
             await _unitOfWork.SaveChangesAsync();

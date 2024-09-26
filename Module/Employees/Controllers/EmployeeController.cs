@@ -20,7 +20,7 @@ namespace FBAdsManager.Module.Employees.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Add([FromBody] AddEmployeeRequest request)
         {
             var result = await _employeeSerivce.AddAsync(request);
@@ -36,7 +36,7 @@ namespace FBAdsManager.Module.Employees.Controllers
 
 
         [HttpDelete]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             var result = await _employeeSerivce.Delete(id);
@@ -56,7 +56,7 @@ namespace FBAdsManager.Module.Employees.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Update([FromBody] UpdateEmployeeRequest request)
         {
             var result = await _employeeSerivce.Update(request);

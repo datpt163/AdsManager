@@ -4,7 +4,6 @@ using FBAdsManager.Common.Database.Repository;
 using FBAdsManager.Common.Helper;
 using FBAdsManager.Common.Paging;
 using FBAdsManager.Common.Response.ResponseService;
-using FBAdsManager.Models;
 using FBAdsManager.Module.Dashboard.Responses;
 using FBAdsManager.Module.DataFacebook.Responses;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,6 @@
 ﻿using FBAdsManager.Common.Database.Data;
 using FBAdsManager.Common.Database.Repository;
 using FBAdsManager.Common.Response.ResponseService;
-using FBAdsManager.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

@@ -31,7 +31,7 @@ namespace FBAdsManager.Module.Groups.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION")]
         public async Task<IActionResult> Add([FromBody] AddGroupRequest request)
         {
             var result = await _groupService.AddAsync(request);
@@ -46,7 +46,7 @@ namespace FBAdsManager.Module.Groups.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             var result = await _groupService.Delete(id);
@@ -56,7 +56,7 @@ namespace FBAdsManager.Module.Groups.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION")]
         public async Task<IActionResult> Update([FromBody] UpdateGroupRequest request)
         {
             var result = await _groupService.Update(request);
