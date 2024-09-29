@@ -1,4 +1,5 @@
-﻿using FBAdsManager.Common.Response.ResponseApi;
+﻿using FBAdsManager.Common.Database.Data;
+using FBAdsManager.Common.Response.ResponseApi;
 using FBAdsManager.Module.Organizations.Requests;
 using FBAdsManager.Module.Users.Requests;
 using FBAdsManager.Module.Users.Services;
@@ -22,7 +23,8 @@ namespace FBAdsManager.Module.Users.Controllers
         [Authorize]
         public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, Guid? roleId)
         {
-            var result = await _userService.GetListAsyncSystem(pageIndex, pageSize, roleId);
+            string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _userService.GetListAsyncSystem(pageIndex, pageSize, roleId, token);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);
@@ -30,9 +32,9 @@ namespace FBAdsManager.Module.Users.Controllers
 
         [HttpGet("bm")]
         [Authorize]
-        public async Task<IActionResult> GetList2([FromQuery] int? pageIndex, int? pageSize)
+        public async Task<IActionResult> GetList2([FromQuery] int? pageIndex, int? pageSize, Guid? groupId, Guid? branchId, Guid? organizationId)
         {
-            var result = await _userService.GetListAsyncBm(pageIndex, pageSize);
+            var result = await _userService.GetListAsyncBm(pageIndex, pageSize, groupId, branchId, organizationId);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);

@@ -17,11 +17,8 @@ public partial class User
     public string? AccessTokenFb { get; set; } = string.Empty;
     [JsonIgnore]
     public Guid RoleId { get; set; }
-    [JsonIgnore]
     public Guid? GroupId { get; set; }
-    [JsonIgnore]
     public Guid? BranchId { get; set; }
-    [JsonIgnore]
     public Guid? OrganizationId { get; set; }
     [JsonIgnore]
     public string? TokenTelegram { get; set; }

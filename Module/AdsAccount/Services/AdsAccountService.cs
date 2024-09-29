@@ -202,7 +202,7 @@ namespace FBAdsManager.Module.AdsAccount.Services
             return new ResponseService("", null);
         }
 
-        public async Task<ResponseService> GetListAsync(int? pageIndex, int? pageSize, bool? isDeleted)
+        public async Task<ResponseService> GetListAsync(int? pageIndex, int? pageSize, bool? isDeleted, Guid? organizationId, Guid? branchId, Guid? groupId, Guid? employeeId)
         {
             if (pageIndex != null && pageSize != null)
             {
@@ -211,6 +211,31 @@ namespace FBAdsManager.Module.AdsAccount.Services
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
                 var pagedOrganizationQuery = _unitOfWork.AdsAccounts.GetQuery().Include(c => c.Pms).Skip(skip).Take(pageSize.Value).Include(c => c.Employee).ThenInclude(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).ToList();
+
+                if (employeeId.HasValue)
+                {
+                    pagedOrganizationQuery = pagedOrganizationQuery.Where(x => x.EmployeeId == employeeId.Value).ToList();
+                }
+                else
+                {
+                    if (groupId.HasValue)
+                    {
+                        pagedOrganizationQuery = pagedOrganizationQuery.Where(x => x.Employee != null && x.Employee.GroupId == groupId.Value).ToList();
+                    }
+                    else
+                    {
+                        if (branchId.HasValue)
+                        {
+                            pagedOrganizationQuery = pagedOrganizationQuery.Where(x => x.Employee != null && x.Employee.Group != null && x.Employee.Group.BranchId == branchId).ToList();
+                        }
+                        else
+                        {
+                            if (organizationId.HasValue)
+                                pagedOrganizationQuery = pagedOrganizationQuery.Where(x => x.Employee != null && x.Employee.Group != null && x.Employee.Group.Branch != null && x.Employee.Group.Branch.OrganizationId == organizationId).ToList();
+                        }
+                    }
+                }
+
                 if (isDeleted.HasValue)
                     pagedOrganizationQuery = pagedOrganizationQuery.Where(x => x.IsDelete == isDeleted.Value).ToList();
                 var totalCount = _unitOfWork.AdsAccounts.Find(x => x.IsDelete == isDeleted).Count();

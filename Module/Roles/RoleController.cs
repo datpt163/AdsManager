@@ -20,7 +20,7 @@ namespace FBAdsManager.Module.Roles
         [HttpGet]
         public IActionResult GetList()
         {
-            return ResponseOk(_unitOfWork.Roles.Find(x => x.Name != "BM").ToList());
+            return ResponseOk(_unitOfWork.Roles.Find(x => x.Name != "BM").OrderByDescending(c => c.createTime).ToList());
         }
     }
 }

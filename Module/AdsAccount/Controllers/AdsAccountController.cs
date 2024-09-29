@@ -37,9 +37,9 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, bool? isDelete)
+        public async Task<IActionResult> GetList([FromQuery] int? pageIndex, int? pageSize, bool? isDelete, Guid? organizationId, Guid? branchId, Guid? groupId, Guid? employeeId)
         {
-            var result = await _adsAccountService.GetListAsync(pageIndex, pageSize, isDelete);
+            var result = await _adsAccountService.GetListAsync(pageIndex, pageSize, isDelete, organizationId, branchId,groupId,employeeId);
             if (string.IsNullOrEmpty(result.ErrorMessage))
                 return ResponseOkPaging(dataResponse: result.Data, pagingresponse: result.pagingResponse);
             return ResponseBadRequest(result.ErrorMessage);

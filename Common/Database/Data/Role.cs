@@ -10,6 +10,7 @@ public partial class Role
 
     public string Name { get; set; } = null!;
     [JsonIgnore]
-
+    public DateTime createTime { get; set; } = DateTime.Now;
+    [JsonIgnore]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

@@ -1,18 +1,22 @@
 ﻿using FBAdsManager.Common.Database.Data;
 using FBAdsManager.Common.Database.Repository;
+using FBAdsManager.Common.Jwt;
 using FBAdsManager.Common.Paging;
 using FBAdsManager.Common.Response.ResponseService;
 using FBAdsManager.Module.Users.Requests;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace FBAdsManager.Module.Users.Services
 {
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IJwtService _jwtService;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork unitOfWork, IJwtService jwtService)
         {
+            _jwtService = jwtService;
             _unitOfWork = unitOfWork;
         }
 
@@ -76,17 +80,32 @@ namespace FBAdsManager.Module.Users.Services
             return new ResponseService("", userAdd);
         }
 
-        public async Task<ResponseService> GetListAsyncSystem(int? pageIndex, int? pageSize, Guid? roleId)
+        public async Task<ResponseService> GetListAsyncSystem(int? pageIndex, int? pageSize, Guid? roleId, string token)
         {
             if (pageIndex != null && pageSize != null)
             {
+                var user = await _jwtService.VerifyTokenAsync(token);
                 if (pageIndex.Value < 1 || pageSize.Value < 0)
                     return new ResponseService("PageIndex, PageSize must >= 0", null);
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
-                var pagedUserQuery = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name != "BM").Include(c => c.Group).Include(c => c.Role).Skip(skip).Take(pageSize.Value);
+                var pagedUserQuery = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name != "BM").Include(c => c.Group).Include(c => c.Role).Skip(skip).Take(pageSize.Value).ToList();
                 if (roleId.HasValue)
-                    pagedUserQuery = pagedUserQuery.Where(x => x.RoleId == roleId.Value);
+                    pagedUserQuery = pagedUserQuery.Where(x => x.RoleId == roleId.Value).ToList();
+
+                if (user.Role.Name.Equals("ORGANIZATION") && user.OrganizationId != null)
+                {
+                    pagedUserQuery = pagedUserQuery.Where(x => user.Organization.Branches.SelectMany(x => x.Groups).Select(x => x.Id).Contains(x.GroupId.Value)).ToList();
+                }
+                else if (user.Role.Name.Equals("BRANCH") && user.Branch != null)
+                {
+                    pagedUserQuery = pagedUserQuery.Where(x => user.Branch.Groups.Select(x => x.Id).Contains(x.GroupId.Value)).ToList();
+                }
+                else if (user.Role.Name.Equals("GROUP"))
+                {
+                    pagedUserQuery = pagedUserQuery.Where(x => x.GroupId == user.GroupId).ToList();
+                }
+
                 var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && !x.Role.Name.Equals("BM")).Count();
                 return new ResponseService("", pagedUserQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
@@ -94,7 +113,7 @@ namespace FBAdsManager.Module.Users.Services
             return new ResponseService("", await _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name != "BM").Include(c => c.Group).Include(c => c.Role).ToListAsync());
         }
 
-        public async Task<ResponseService> GetListAsyncBm(int? pageIndex, int? pageSize)
+        public async Task<ResponseService> GetListAsyncBm(int? pageIndex, int? pageSize, Guid? groupId, Guid? branchId, Guid? organizationId)
         {
             if (pageIndex != null && pageSize != null)
             {
@@ -102,8 +121,26 @@ namespace FBAdsManager.Module.Users.Services
                     return new ResponseService("PageIndex, PageSize must >= 0", null);
 
                 int skip = (pageIndex.Value - 1) * pageSize.Value;
-                var pagedUserQuery = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name.Equals("BM")).Include(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).Include(c => c.Pms).Skip(skip).Take(pageSize.Value).Select(x => new
+                var pagedUserQuery = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name.Equals("BM")).Include(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).Include(c => c.Pms).Skip(skip).Take(pageSize.Value);
+                if (groupId.HasValue)
                 {
+                    pagedUserQuery = pagedUserQuery.Where(x => x.GroupId == groupId.Value);
+                }
+                else
+                {
+                    if (branchId.HasValue)
+                    {
+                        pagedUserQuery = pagedUserQuery.Where(x => x.Group != null && x.Group.BranchId == branchId);
+                    }
+                    else
+                    {
+                        if (organizationId.HasValue)
+                            pagedUserQuery = pagedUserQuery.Where(x => x.Group != null && x.Group.Branch != null && x.Group.Branch.OrganizationId == organizationId);
+                    }
+                }
+
+                var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name.Equals("BM")).Count();
+                var response = pagedUserQuery.Select(x => new {
                     Id = x.Id,
                     Email = x.Email,
                     Group = x.Group,
@@ -111,8 +148,7 @@ namespace FBAdsManager.Module.Users.Services
                     ChatId = x.ChatId,
                     Pms = x.Pms,
                 });
-                var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name.Equals("BM")).Count();
-                return new ResponseService("", pagedUserQuery, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
+                return new ResponseService("", response, new PagingResponse(totalCount, pageIndex.Value, pageSize.Value));
             }
 
             return new ResponseService("", await _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name.Equals("BM")).Include(c => c.Group).ThenInclude(c => c.Branch).ThenInclude(c => c.Organization).Include(c => c.Role).Select(x => new
@@ -266,10 +302,12 @@ namespace FBAdsManager.Module.Users.Services
                     return new ResponseService("Không tìm thấy đội nhóm này", null, 400);
             }
 
-
             user.Email = request.Email;
             user.Password = request.Password;
             user.RoleId = request.RoleId;
+            user.GroupId = request.GroupId;
+            user.BranchId = request.BranchId;
+            user.OrganizationId = request.OrganizationId;
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", user);

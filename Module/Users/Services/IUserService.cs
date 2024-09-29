@@ -6,8 +6,9 @@ namespace FBAdsManager.Module.Users.Services
 {
     public interface IUserService
     {
-        public Task<ResponseService> GetListAsyncSystem(int? pageIndex, int? pageSize, Guid? roleId);
-        public Task<ResponseService> GetListAsyncBm(int? pageIndex, int? pageSize, Guid? organizationId, Guid? branchId, Guid? groupId);
+    
+        public Task<ResponseService> GetListAsyncSystem(int? pageIndex, int? pageSize, Guid? roleId, string token);
+        public Task<ResponseService> GetListAsyncBm(int? pageIndex, int? pageSize, Guid? groupId, Guid? branchId, Guid? organizationId);
         public Task<ResponseService> CreateAsyncBm(CreateBmRequest request);
         public Task<ResponseService> Delete(Guid id);
         public Task<ResponseService> AddAsync(AddUserRequest request);

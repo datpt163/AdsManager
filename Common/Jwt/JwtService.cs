@@ -70,7 +70,10 @@ namespace FBAdsManager.Common.Jwt
                     throw new SecurityTokenException("Invalid token");
                 }
                 var userId = Guid.Parse(userIdClaim.Value);
-                var account = await _unitOfWork.Users.Find(s => s.Id == userId).Include(c => c.Pms).Include(c => c.Group).ThenInclude(c => c.Employees).ThenInclude(c => c.AdsAccounts).ThenInclude(c => c.Pms).Include(c => c.Pms).ThenInclude(c => c.AdsAccounts).ThenInclude(c => c.Campaigns).ThenInclude(c => c.Adsets).ThenInclude(c => c.Ads).ThenInclude(c => c.Insights).FirstOrDefaultAsync();
+                var account = await _unitOfWork.Users.Find(s => s.Id == userId).Include(c => c.Pms).Include(c => c.Group).ThenInclude(c => c.Employees)
+                    .ThenInclude(c => c.AdsAccounts).ThenInclude(c => c.Pms).Include(c => c.Pms).ThenInclude(c => c.AdsAccounts).ThenInclude(c => c.Campaigns).ThenInclude(c => c.Adsets).ThenInclude(c => c.Ads).ThenInclude(c => c.Insights).Include(c => c.Branch).Include(c => c.Organization).Include(c => c.Role)
+                    .Include(c => c.Organization).ThenInclude(c => c.Branches).ThenInclude(c => c.Groups)
+                    .Include(c => c.Branch).ThenInclude(c => c.Groups).FirstOrDefaultAsync();
                 if (account != null) 
                     return account;
                 throw new SecurityTokenException();
