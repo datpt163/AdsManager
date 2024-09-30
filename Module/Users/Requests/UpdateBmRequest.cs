@@ -6,6 +6,6 @@
         public string email { get; set; } = string.Empty;
         public Guid GroupId { get; set; }
         public string ChatId { get; set; } = string.Empty;
-        public List<string> BmsId { get; set; } = new List<string>();
+        public List<BmInformation> Bms { get; set; } = new List<BmInformation>();
     }
 }

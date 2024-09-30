@@ -179,11 +179,11 @@ namespace FBAdsManager.Module.Users.Services
 
             var user = new User() { GroupId = request.GroupId, Email = request.email, RoleId = role.Id, IsActive = true,  ChatId = request.ChatId };
 
-            foreach (var l in request.BmsId)
+            foreach (var l in request.Bms)
             {
-                var bm = _unitOfWork.Pms.FindOne(x => x.Id == l);
+                var bm = _unitOfWork.Pms.FindOne(x => x.Id == l.BmId);
                 if (bm == null)
-                    user.Pms.Add(new Pm() { Id = l, UserId = user.Id });
+                    user.Pms.Add(new Pm() { Id = l.BmId, TypeAccount = l.TypeAccount, SourceAccount = l.SourceAccount, Cost = l.Cost, InformationLogin = l.InformationLogin,  UserId = user.Id });
                 else
                 {
                     var response = await Delete(user.Id);
@@ -217,7 +217,7 @@ namespace FBAdsManager.Module.Users.Services
         {
             if (!request.email.Contains("@"))
                 return new ResponseService("Must enter email", null, 400);
-            if (request.BmsId.Count == 0)
+            if (request.Bms.Count == 0)
                 return new ResponseService("Must enter bm id", null, 400);
             if (string.IsNullOrEmpty(request.ChatId))
                 return new ResponseService("chat id empty", null, 400);
@@ -242,11 +242,11 @@ namespace FBAdsManager.Module.Users.Services
             bm.GroupId = request.GroupId;
             bm.Email = request.email;
             bm.ChatId = request.ChatId;
-            foreach (var l in request.BmsId)
+            foreach (var l in request.Bms)
             {
-                var bm2 = _unitOfWork.Pms.FindOne(x => x.Id == l && x.UserId != request.Id);
+                var bm2 = _unitOfWork.Pms.FindOne(x => x.Id == l.BmId && x.UserId != request.Id);
                 if (bm2 == null)
-                    _unitOfWork.Pms.Add(new Pm() { Id = l, UserId = bm.Id });
+                    _unitOfWork.Pms.Add(new Pm() { Id = l.BmId, UserId = bm.Id, TypeAccount = l.TypeAccount, SourceAccount = l.SourceAccount, Cost = l.Cost, InformationLogin = l.InformationLogin });
                 else
                 {
                     return new ResponseService("Phát hiện Id BM đã được sử dụng bởi một tài khoản khác", null, 404);

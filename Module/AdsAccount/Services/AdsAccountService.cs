@@ -34,6 +34,18 @@ namespace FBAdsManager.Module.AdsAccount.Services
 
         public async Task<ResponseService> AddAsync(string token, AddAccountRequest request)
         {
+            if(string.IsNullOrEmpty(request.TypeAccount))
+                return new ResponseService("Type Account empty", null, 400);
+
+            if (string.IsNullOrEmpty(request.SourceAccount))
+                return new ResponseService("Source Account empty", null, 400);
+
+            if (string.IsNullOrEmpty(request.Cost))
+                return new ResponseService("Cost empty", null, 400);
+
+            if (string.IsNullOrEmpty(request.InformationLogin))
+                return new ResponseService("Information Login empty", null, 400);
+
             var employee = _unitOfWork.Employees.FindOne(x => x.Id == request.EmployeeID);
             if (employee == null)
                 return new ResponseService("Không tìm thấy nhân viên này", null, 404);
@@ -306,7 +318,20 @@ namespace FBAdsManager.Module.AdsAccount.Services
 
         public async Task<ResponseService> UpdateAsync(UpdateAdsAccountRequest request)
         {
+            if (string.IsNullOrEmpty(request.TypeAccount))
+                return new ResponseService("Type Account empty", null, 400);
+
+            if (string.IsNullOrEmpty(request.SourceAccount))
+                return new ResponseService("Source Account empty", null, 400);
+
+            if (string.IsNullOrEmpty(request.Cost))
+                return new ResponseService("Cost empty", null, 400);
+
+            if (string.IsNullOrEmpty(request.InformationLogin))
+                return new ResponseService("Information Login empty", null, 400);
+
             var adsAccount = _unitOfWork.AdsAccounts.Find(x => x.AccountId == request.AccountID).Include(c => c.Pms).FirstOrDefault();
+
 
             if (adsAccount == null)
                 return new ResponseService("Không tìm thấy tài khoản quảng cáo này", null, 400);
