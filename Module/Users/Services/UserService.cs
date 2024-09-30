@@ -95,20 +95,13 @@ namespace FBAdsManager.Module.Users.Services
 
                 if (user.Role.Name.Equals("ORGANIZATION") && user.OrganizationId != null)
                 {
-                    pagedUserQuery = pagedUserQuery.Where(x =>  (x.Role.Name.Equals("ORGANIZATION") && x.OrganizationId == user.OrganizationId ) 
-                                                                || (x.Role.Name.Equals("BRANCH") && user.Organization.Branches.Select(x => x.Id).Contains(x.BranchId.Value))
+                    pagedUserQuery = pagedUserQuery.Where(x =>  (x.Role.Name.Equals("BRANCH") && user.Organization.Branches.Select(x => x.Id).Contains(x.BranchId.Value))
                                                                 || (x.Role.Name.Equals("GROUP") && user.Organization.Branches.SelectMany(x => x.Groups).Select(x => x.Id).Contains(x.GroupId.Value))
                                                           ).ToList();
                 }
                 else if (user.Role.Name.Equals("BRANCH") && user.Branch != null)
                 {
-                    pagedUserQuery = pagedUserQuery.Where(x => (x.Role.Name.Equals("BRANCH") && x.BranchId == user.BranchId)
-                                                                 || (x.Role.Name.Equals("GROUP") && user.Branch.Groups.Select(x => x.Id).Contains(x.GroupId.Value))
-                                                           ).ToList();
-                }
-                else if (user.Role.Name.Equals("GROUP"))
-                {
-                    pagedUserQuery = pagedUserQuery.Where(x => (x.Role.Name.Equals("GROUP") && x.GroupId == user.GroupId)).ToList();
+                    pagedUserQuery = pagedUserQuery.Where(x => (x.Role.Name.Equals("GROUP") && user.Branch.Groups.Select(x => x.Id).Contains(x.GroupId.Value))).ToList();
                 }
 
                 var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && !x.Role.Name.Equals("BM")).Count();
@@ -150,7 +143,6 @@ namespace FBAdsManager.Module.Users.Services
                     Id = x.Id,
                     Email = x.Email,
                     Group = x.Group,
-                    TokenTelegram = x.TokenTelegram,
                     ChatId = x.ChatId,
                     Pms = x.Pms,
                 });
@@ -162,7 +154,6 @@ namespace FBAdsManager.Module.Users.Services
                 Id = x.Id,
                 Email = x.Email,
                 Group = x.Group,
-                TokenTelegram = x.TokenTelegram,
                 ChatId = x.ChatId,
                 Pms = x.Pms,
             }).ToListAsync());
@@ -174,8 +165,6 @@ namespace FBAdsManager.Module.Users.Services
                 return new ResponseService("Must enter email", null, 400);
             if (!request.email.Contains("@"))
                 return new ResponseService("Must enter email", null, 400);
-            if (string.IsNullOrEmpty(request.TokenTelegram))
-                return new ResponseService("Token Telegram wrong", null, 400);
             if (string.IsNullOrEmpty(request.ChatId))
                 return new ResponseService("Chat id empty", null, 400);
 
@@ -188,7 +177,7 @@ namespace FBAdsManager.Module.Users.Services
 
             var role = _unitOfWork.Roles.FindOne(x => x.Name == "BM");
 
-            var user = new User() { GroupId = request.GroupId, Email = request.email, RoleId = role.Id, IsActive = true, TokenTelegram = request.TokenTelegram, ChatId = request.ChatId };
+            var user = new User() { GroupId = request.GroupId, Email = request.email, RoleId = role.Id, IsActive = true,  ChatId = request.ChatId };
 
             foreach (var l in request.BmsId)
             {
@@ -230,8 +219,6 @@ namespace FBAdsManager.Module.Users.Services
                 return new ResponseService("Must enter email", null, 400);
             if (request.BmsId.Count == 0)
                 return new ResponseService("Must enter bm id", null, 400);
-            if (string.IsNullOrEmpty(request.TokenTelegram))
-                return new ResponseService("Token telegram empty", null, 400);
             if (string.IsNullOrEmpty(request.ChatId))
                 return new ResponseService("chat id empty", null, 400);
 
@@ -254,7 +241,6 @@ namespace FBAdsManager.Module.Users.Services
 
             bm.GroupId = request.GroupId;
             bm.Email = request.email;
-            bm.TokenTelegram = request.TokenTelegram;
             bm.ChatId = request.ChatId;
             foreach (var l in request.BmsId)
             {

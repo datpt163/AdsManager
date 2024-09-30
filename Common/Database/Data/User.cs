@@ -21,8 +21,6 @@ public partial class User
     public Guid? BranchId { get; set; }
     public Guid? OrganizationId { get; set; }
     [JsonIgnore]
-    public string? TokenTelegram { get; set; }
-    [JsonIgnore]
     public string? ChatId { get; set; }
     [JsonIgnore]
     public virtual ICollection<Pm> Pms { get; set; } = new List<Pm>();
