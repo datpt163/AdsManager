@@ -18,7 +18,7 @@ namespace FBAdsManager.Module.Organizations.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Add([FromBody] AddOrganizationRequest request)
         {
             var result = await _organizationService.AddOrganizationAsync(request);
@@ -48,7 +48,7 @@ namespace FBAdsManager.Module.Organizations.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Delete([FromQuery]Guid id)
         {
             var result = await _organizationService.Delete(id);
@@ -58,7 +58,7 @@ namespace FBAdsManager.Module.Organizations.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Update([FromBody] UpdateOrganizationRequest request)
         {
             var result = await _organizationService.Update(request);

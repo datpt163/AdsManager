@@ -41,7 +41,7 @@ namespace FBAdsManager.Module.Users.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Add([FromBody] AddUserRequest request)
         {
             var result = await _userService.AddAsync(request);
@@ -51,7 +51,7 @@ namespace FBAdsManager.Module.Users.Controllers
         }
 
         [HttpPost("bm")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Add([FromBody] CreateBmRequest request)
         {
             var result = await _userService.CreateAsyncBm(request);
@@ -61,7 +61,7 @@ namespace FBAdsManager.Module.Users.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> remove(Guid id)
         {
             var result = await _userService.Delete(id);
@@ -71,7 +71,7 @@ namespace FBAdsManager.Module.Users.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> update(UpdateBmRequest request)
         {
             var result = await _userService.UpdateBmAsync(request);
@@ -85,7 +85,7 @@ namespace FBAdsManager.Module.Users.Controllers
         }
 
         [HttpPut("system")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> update(UpdateUserSystemRequest request)
         {
             var result = await _userService.UpdateSystemAsync(request);
