@@ -37,7 +37,7 @@ namespace FBAdsManager.Module.Users.Services
                 if (role.Name.Equals("GROUP"))
                 {
                     var group = _unitOfWork.Groups.FindOne(x => x.Id == (request.GroupId == null ? Guid.NewGuid() : request.GroupId.Value));
-                    if(group == null)
+                    if (group == null)
                         return new ResponseService("Group not found", null, 404);
                 }
 
@@ -95,15 +95,20 @@ namespace FBAdsManager.Module.Users.Services
 
                 if (user.Role.Name.Equals("ORGANIZATION") && user.OrganizationId != null)
                 {
-                    pagedUserQuery = pagedUserQuery.Where(x => user.Organization.Branches.SelectMany(x => x.Groups).Select(x => x.Id).Contains(x.GroupId.Value)).ToList();
+                    pagedUserQuery = pagedUserQuery.Where(x =>  (x.Role.Name.Equals("ORGANIZATION") && x.OrganizationId == user.OrganizationId ) 
+                                                                || (x.Role.Name.Equals("BRANCH") && user.Organization.Branches.Select(x => x.Id).Contains(x.BranchId.Value))
+                                                                || (x.Role.Name.Equals("GROUP") && user.Organization.Branches.SelectMany(x => x.Groups).Select(x => x.Id).Contains(x.GroupId.Value))
+                                                          ).ToList();
                 }
                 else if (user.Role.Name.Equals("BRANCH") && user.Branch != null)
                 {
-                    pagedUserQuery = pagedUserQuery.Where(x => user.Branch.Groups.Select(x => x.Id).Contains(x.GroupId.Value)).ToList();
+                    pagedUserQuery = pagedUserQuery.Where(x => (x.Role.Name.Equals("BRANCH") && x.BranchId == user.BranchId)
+                                                                 || (x.Role.Name.Equals("GROUP") && user.Branch.Groups.Select(x => x.Id).Contains(x.GroupId.Value))
+                                                           ).ToList();
                 }
                 else if (user.Role.Name.Equals("GROUP"))
                 {
-                    pagedUserQuery = pagedUserQuery.Where(x => x.GroupId == user.GroupId).ToList();
+                    pagedUserQuery = pagedUserQuery.Where(x => (x.Role.Name.Equals("GROUP") && x.GroupId == user.GroupId)).ToList();
                 }
 
                 var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && !x.Role.Name.Equals("BM")).Count();
@@ -140,7 +145,8 @@ namespace FBAdsManager.Module.Users.Services
                 }
 
                 var totalCount = _unitOfWork.Users.Find(x => x.IsActive == true && x.Role.Name.Equals("BM")).Count();
-                var response = pagedUserQuery.Select(x => new {
+                var response = pagedUserQuery.Select(x => new
+                {
                     Id = x.Id,
                     Email = x.Email,
                     Group = x.Group,
@@ -225,7 +231,7 @@ namespace FBAdsManager.Module.Users.Services
             if (request.BmsId.Count == 0)
                 return new ResponseService("Must enter bm id", null, 400);
             if (string.IsNullOrEmpty(request.TokenTelegram))
-                  return new ResponseService("Token telegram empty", null, 400);
+                return new ResponseService("Token telegram empty", null, 400);
             if (string.IsNullOrEmpty(request.ChatId))
                 return new ResponseService("chat id empty", null, 400);
 
@@ -273,18 +279,18 @@ namespace FBAdsManager.Module.Users.Services
             var role = _unitOfWork.Roles.FindOne(x => x.Id == request.RoleId);
             if (role == null)
                 return new ResponseService("Role not found", null, 404);
-            if(!request.Email.Contains("@"))
+            if (!request.Email.Contains("@"))
                 return new ResponseService("Email not correct", null, 400);
-            if(request.Password.Length <6 )
+            if (request.Password.Length < 6)
                 return new ResponseService("Password must >= 6", null, 400);
 
             var userCheckEmail = _unitOfWork.Users.FindOne(x => (x.Email.Trim().Equals(request.Email.Trim()) && x.IsActive == true) && x.Role.Name != "BM" && x.Id != request.Id);
-            if(userCheckEmail != null)
+            if (userCheckEmail != null)
                 return new ResponseService("Tài khoản email này đã được sử dụng bởi một tài khoản khác", null, 400);
             if (user.Role.Name.Equals("ORGANIZATION"))
             {
                 var organization = _unitOfWork.Organizations.FindOne(x => x.Id == (request.OrganizationId == null ? Guid.NewGuid() : request.OrganizationId.Value));
-                if(organization == null)
+                if (organization == null)
                     return new ResponseService("Không tìm thấy tổ chức này", null, 400);
             }
 
