@@ -18,7 +18,7 @@ namespace FBAdsManager.Module.AdsAccount.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,BRANCH,ORGANIZATION,GROUP")]
         public async Task<IActionResult> Add([FromBody] AddAccountRequest request)
         {
             string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
