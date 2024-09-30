@@ -39,7 +39,7 @@ public partial class AdsAccount
     public double? MinDailyBudget { get; set; }
     public string? TypeAccount { get; set; }
     public string? SourceAccount { get; set; }
-    public string? Cost { get; set; }
+    public float? Cost { get; set; }
     public string? InformationLogin { get; set; }
 
     public int? IsPersonal { get; set; }

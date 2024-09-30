@@ -11,7 +11,7 @@ public partial class Pm
     public Guid? UserId { get; set; }
     public string? TypeAccount { get; set; }
     public string? SourceAccount { get; set; }
-    public string? Cost { get; set; }
+    public float? Cost { get; set; }
     public string? InformationLogin { get; set; }
     public virtual User? User { get; set; }
     [JsonIgnore]
