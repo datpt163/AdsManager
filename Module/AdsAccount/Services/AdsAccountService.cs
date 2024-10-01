@@ -40,9 +40,6 @@ namespace FBAdsManager.Module.AdsAccount.Services
             if (string.IsNullOrEmpty(request.SourceAccount))
                 return new ResponseService("Source Account empty", null, 400);
 
-            if (string.IsNullOrEmpty(request.Cost))
-                return new ResponseService("Cost empty", null, 400);
-
             if (string.IsNullOrEmpty(request.InformationLogin))
                 return new ResponseService("Information Login empty", null, 400);
 
@@ -71,6 +68,10 @@ namespace FBAdsManager.Module.AdsAccount.Services
             {
                 AccountId = request.AccountID.Trim(),
                 EmployeeId = request.EmployeeID,
+                Cost = request.Cost,
+                TypeAccount = request.TypeAccount,
+                SourceAccount = request.SourceAccount,
+                InformationLogin = request.InformationLogin,
                 IsActive = 0,
             };
 
@@ -324,9 +325,6 @@ namespace FBAdsManager.Module.AdsAccount.Services
             if (string.IsNullOrEmpty(request.SourceAccount))
                 return new ResponseService("Source Account empty", null, 400);
 
-            if (string.IsNullOrEmpty(request.Cost))
-                return new ResponseService("Cost empty", null, 400);
-
             if (string.IsNullOrEmpty(request.InformationLogin))
                 return new ResponseService("Information Login empty", null, 400);
 
@@ -355,6 +353,10 @@ namespace FBAdsManager.Module.AdsAccount.Services
             }
             adsAccount.Pms = listPm;
             adsAccount.EmployeeId = request.EmployeeID;
+            adsAccount.Cost = request.Cost;
+            adsAccount.InformationLogin = request.InformationLogin;
+            adsAccount.TypeAccount = request.TypeAccount;
+            adsAccount.SourceAccount = request.SourceAccount;
             _unitOfWork.AdsAccounts.Update(adsAccount);
             await _unitOfWork.SaveChangesAsync();
             return new ResponseService("", null);
